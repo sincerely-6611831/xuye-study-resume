@@ -4,10 +4,10 @@
 
 - 网页：登录后首次显示四步引导，之后可从“个人 → 查看引导”重看；首页“总览”显示待续接、学习中、已完成及下一步。手机单栏，平板在 768dp 以上保留双栏。
 - Windows：原有 `start.cmd` 可直接运行本地网页。已打包的 `dist/XuYe/XuYe.exe` 可以直接运行，并经本机 8002 端口实际验证；复制时需保留整个 `dist/XuYe/` 文件夹。需要重新制作时，在 PowerShell 运行 `./build-windows.ps1`，先安装 Python、Node.js，脚本会安装 PyInstaller。打包版数据位于当前 Windows 用户的 `%LOCALAPPDATA%/XuYe/data`，与开发版 `data/` 分开；学习记录可通过 ZIP 与选择同步转移。
-- Android 手机/平板：用 Android Studio 打开 `android/`，安装 Android SDK 35 与 JDK 17 后构建 `mobile`。首次输入电脑网关的局域网地址，手机和平板的 WebView 各自保存本地数据。桌面小组件使用 Android 官方 `AppWidgetProvider`，展示当前手机最近一次打开续页时的待续接数量和标题；进入应用后刷新。普通局域网 HTTP 下麦克风权限受 WebView 安全上下文限制，可使用系统录音后上传音频。
+- Android 手机/平板：用 Android Studio 打开 `android/`，安装 Android SDK 35 与 JDK 17 后运行 `gradlew.bat :mobile:assembleDebug`（或在 Studio 中构建 `mobile`）。工程附带 Gradle 8.11.1 Wrapper。首次输入电脑网关的局域网地址，手机和平板的 WebView 各自保存本地数据。桌面小组件使用 Android 官方 `AppWidgetProvider`，展示当前手机最近一次打开续页时的待续接数量和标题；进入应用后刷新。普通局域网 HTTP 下麦克风权限受 WebView 安全上下文限制，可使用系统录音后上传音频。
 - Wear OS：同一 Android 工程的 `wear` 模块是圆屏简化总览，使用安全边距和滚动容器。配对 Android 手机打开续页后，使用 Google Play services Data Layer 传送待续接数量和标题。手表不传完整任务、附件或模型密钥，也不在手表上编辑任务；需要支持 Wear OS 和 Data Layer 的配对设备。
 
-当前开发机虽然有 Android SDK 37，但缺少本工程要求的 SDK 35、JDK 17 和 Gradle，尚未生成或真机验证 APK。Android 小组件和手表显示需要在实际设备或模拟器上进一步验收。
+当前开发机虽然有 Android SDK 37，但缺少本工程要求的 SDK 35 与 JDK 17，尚未生成或真机验证 APK。Android 小组件和手表显示需要在实际设备或模拟器上进一步验收。
 
 记录学习中断时的位置、思路和下一步，使用续学卡在电脑、手机和平板上接着学习。
 
