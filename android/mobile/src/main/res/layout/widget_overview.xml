@@ -1,0 +1,5 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:gravity="center_vertical" android:padding="14dp" android:background="#EAF2E9" android:layout_width="match_parent" android:layout_height="match_parent">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="续页 · 待续接" android:textColor="#315B49" android:textStyle="bold" android:textSize="15sp"/>
+    <TextView android:id="@+id/count" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0 项" android:textColor="#1F3427" android:textSize="24sp"/>
+    <TextView android:id="@+id/title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="打开应用查看" android:textColor="#435D4A" android:maxLines="1" android:ellipsize="end"/>
+</LinearLayout>

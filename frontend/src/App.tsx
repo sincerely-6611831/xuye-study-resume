@@ -17,6 +17,8 @@ import { TaskBoard } from "./tasks/TaskBoard";
 import { NewTask } from "./tasks/NewTask";
 import { Workspace } from "./workspace/Workspace";
 import { Personal } from "./personal/Personal";
+import { Overview } from "./home/Overview";
+import { Onboarding } from "./home/Onboarding";
 import { useAppearance } from "./settings/useAppearance";
 import { Modal } from "./components/Modal";
 import {
@@ -42,7 +44,8 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [plugins, setPlugins] = useState<Plugin[]>([]);
-  const [view, setView] = useState("tasks");
+  const [view, setView] = useState("home");
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [personalSection, setPersonalSection] = useState("account");
   const [selected, setSelected] = useState<string | null>(null);
   const [newTask, setNewTask] = useState(false);
@@ -92,6 +95,9 @@ export default function App() {
         api<Plugin[]>("/plugins"),
       ]);
       setTasks(t);
+      // Android 外壳只接收标题与计数，不接收笔记、密钥或附件。
+      const bridge = (window as Window & { XuYeAndroid?: { updateOverview: (summary: string) => void } }).XuYeAndroid;
+      bridge?.updateOverview(JSON.stringify({ waiting: t.filter((item) => ["paused", "blocked"].includes(item.status)).length, title: t.find((item) => ["paused", "blocked"].includes(item.status))?.title || "暂无待续接任务" }));
       setPlugins(p);
       setOffline(false);
       setFatal("");
@@ -121,6 +127,7 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     localStorage.setItem("study-last-user", JSON.stringify(user));
+    setShowOnboarding(localStorage.getItem(`study-onboarded:${user.id}`) !== "1");
     refresh().catch((e) => setFatal("本机缓存不可用：" + e.message));
   }, [user?.id]);
   useEffect(() => {
@@ -187,8 +194,9 @@ export default function App() {
       setSelected(null);
       setTasks([]);
       setPlugins([]);
-      setView("tasks");
+      setView("home");
       setPersonalSection("account");
+      (window as Window & { XuYeAndroid?: { updateOverview: (summary: string) => void } }).XuYeAndroid?.updateOverview(JSON.stringify({ waiting: 0, title: "请登录查看任务" }));
     } catch (e) {
       notify((e as Error).message);
     }
@@ -210,10 +218,11 @@ export default function App() {
           <span>RESUME</span>
         </div>
         <div className="space-label">
-          我的学习空间 <span>V1.3</span>
+          我的学习空间 <span>V1.4</span>
         </div>
         <nav aria-label="主导航">
           {[
+            ["home", "总览", LayoutDashboard],
             ["tasks", "学习任务", LayoutDashboard],
             ["history", "已完成与归档", History],
             ["personal", "个人", UserRound],
@@ -263,7 +272,7 @@ export default function App() {
                   : "个人"
                 : view === "history"
                   ? "学习归档"
-                  : "学习任务"}
+                  : view === "home" ? "总览" : "学习任务"}
           </div>
           <div className="topbar-actions">
             {pending.length > 0 && (
@@ -309,6 +318,8 @@ export default function App() {
               notify={notify}
               changed={() => refresh().catch(() => {})}
             />
+          ) : view === "home" ? (
+            <Overview tasks={tasks} onOpen={setSelected} onNew={() => setNewTask(true)} onTasks={() => navigate("tasks")} />
           ) : view === "personal" ? (
             <Personal
               user={user}
@@ -316,6 +327,7 @@ export default function App() {
               section={personalSection}
               onSectionChange={setPersonalSection}
               onLogout={logout}
+              onShowGuide={() => setShowOnboarding(true)}
               plugins={plugins}
               notify={notify}
               changed={() => refresh().catch(() => {})}
@@ -351,6 +363,7 @@ export default function App() {
       )}
       <nav className="mobile-nav">
         {[
+          ["home", "总览", LayoutDashboard],
           ["tasks", "任务", LayoutDashboard],
           ["history", "归档", History],
           ["personal", "个人", UserRound],
@@ -384,6 +397,10 @@ export default function App() {
           </button>
         </div>
       )}
+      {showOnboarding && <Onboarding onClose={() => {
+        localStorage.setItem(`study-onboarded:${user.id}`, "1");
+        setShowOnboarding(false);
+      }} />}
       {showPending && (
         <Modal title="本机待提交记录" onClose={() => setShowPending(false)}>
           <div className="stack">

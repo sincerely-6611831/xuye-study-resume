@@ -18,6 +18,7 @@ export function Personal({
   section,
   onSectionChange,
   onLogout,
+  onShowGuide,
   notify,
   changed,
   appearance,
@@ -29,6 +30,7 @@ export function Personal({
   section: string;
   onSectionChange: (section: string) => void;
   onLogout: () => void;
+  onShowGuide: () => void;
   notify: (text: string) => void;
   changed: () => void;
   appearance: Appearance;
@@ -139,6 +141,10 @@ export function Personal({
               <SettingsIcon size={16} />
               打开设置
             </button>
+          </section>
+          <section className="panel personal-actions">
+            <div><h3>使用引导</h3><p className="muted">重新查看创建任务、记录中断、续接和手动同步的步骤。</p></div>
+            <button className="secondary" onClick={onShowGuide}>查看引导</button>
           </section>
           <section className="panel personal-actions">
             <div>

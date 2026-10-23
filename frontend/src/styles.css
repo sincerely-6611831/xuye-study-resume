@@ -1682,3 +1682,37 @@ hr {
     scroll-behavior: auto !important;
   }
 }
+/* 首页统计和待续接列表在宽屏平板上保持双栏，避免空白浪费。 */
+.overview-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 0 0 20px; }
+.overview-stats .panel { display: grid; gap: 8px; padding: 20px; }
+.overview-stats svg { color: var(--green); }
+.overview-stats span { color: var(--muted); font-size: 13px; }
+.overview-stats strong { font-size: 29px; font-weight: 600; }
+.overview-columns { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; }
+.overview-columns .panel { padding: 25px; min-width: 0; }
+.overview-focus { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; }
+.overview-focus p { overflow-wrap: anywhere; }
+.overview-focus .primary { margin-top: auto; }
+.overview-row { display: flex; align-items: center; justify-content: space-between; width: 100%; background: transparent; border-top: 1px solid var(--line); padding: 13px 0; text-align: left; gap: 12px; }
+.overview-row span { min-width: 0; }
+.overview-row strong, .overview-row small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.overview-row small { color: var(--muted); }
+.onboarding { display: grid; gap: 18px; max-width: 480px; }
+.onboarding-icon { width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; color: var(--green); background: var(--soft); }
+.onboarding p { color: var(--muted); }
+.onboarding-dots { display: flex; gap: 6px; }
+.onboarding-dots span { width: 18px; height: 5px; background: var(--line); border-radius: 4px; }
+.onboarding-dots .current { background: var(--green); }
+.onboarding .actions { justify-content: flex-end; flex-wrap: wrap; }
+@media (min-width: 768px) and (max-width: 1199px) {
+  .overview-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .overview-columns { grid-template-columns: 1fr 1fr; }
+  .board-grid { grid-template-columns: minmax(0, 1fr) minmax(210px, .42fr); }
+  .board-aside { display: block; }
+}
+@media (max-width: 767px) {
+  .overview-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+  .overview-stats .panel { padding: 14px; }
+  .overview-columns { grid-template-columns: 1fr; }
+  .overview-columns .panel { padding: 18px; }
+}

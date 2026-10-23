@@ -11,3 +11,6 @@ __pycache__/
 *.tsbuildinfo
 test-results/
 .learnbuddy/
+build/
+dist/
+*.spec
