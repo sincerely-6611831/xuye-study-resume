@@ -3,5 +3,29 @@ android {
     namespace 'cn.xuye.study'
     compileSdk 35
     defaultConfig { applicationId 'cn.xuye.study'; minSdk 26; targetSdk 35; versionCode 1; versionName '1.4.0' }
+    signingConfigs {
+        release {
+            if (System.getenv('XUYE_KEYSTORE')) {
+                storeFile file(System.getenv('XUYE_KEYSTORE'))
+                storePassword System.getenv('XUYE_SIGN_PASSWORD')
+                keyAlias 'xuye-release'
+                keyPassword System.getenv('XUYE_SIGN_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (System.getenv('XUYE_KEYSTORE')) signingConfig signingConfigs.release
+        }
+    }
 }
-dependencies { implementation 'com.google.android.gms:play-services-wearable:19.0.0' }
+dependencies {
+    implementation 'com.google.android.gms:play-services-wearable:19.0.0'
+    implementation 'androidx.webkit:webkit:1.18.0'
+}
+// 将 Vite 产物封装到 APK；安装后页面不从电脑下载。
+tasks.register('syncWebAssets', Copy) {
+    from '../../frontend/dist'
+    into 'src/main/assets'
+}
+preBuild.dependsOn syncWebAssets

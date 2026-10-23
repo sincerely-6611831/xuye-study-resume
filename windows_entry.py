@@ -27,7 +27,7 @@ def main():
 
     if os.getenv("STUDY_NO_BROWSER") != "1":
         threading.Thread(target=open_when_ready, daemon=True).start()
-    uvicorn.run("backend.app.main:create_app", factory=True, host="0.0.0.0", port=port)
+    uvicorn.run("backend.app.main:create_app", factory=True, host=os.getenv("STUDY_HOST", "127.0.0.1"), port=port)
 
 
 if __name__ == "__main__":

@@ -187,6 +187,10 @@ export default function App() {
     );
   }
   async function logout() {
+    if ((window as Window & { XuYeAndroid?: { isEmbedded?: () => boolean } }).XuYeAndroid?.isEmbedded?.()) {
+      notify("当前是 Android 本机空间，无需退出登录。");
+      return;
+    }
     try {
       await post("/auth/logout");
       localStorage.removeItem("study-last-user");

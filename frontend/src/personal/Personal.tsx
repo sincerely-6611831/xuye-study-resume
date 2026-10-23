@@ -36,6 +36,7 @@ export function Personal({
   appearance: Appearance;
   onAppearanceChange: (value: Appearance) => void;
 }) {
+  const androidLocal = user.id === "android-local";
   return (
     <div className="personal-page">
       <div className="page-heading">
@@ -80,7 +81,7 @@ export function Personal({
                 <UserRound size={20} />
                 账号信息
               </h2>
-              <span className="badge">当前登录</span>
+              <span className="badge">{androidLocal ? "当前设备" : "当前登录"}</span>
             </div>
             <dl className="team-details">
               <div>
@@ -97,7 +98,9 @@ export function Personal({
               </div>
             </dl>
             <p className="muted">
-              在其他设备登录同一账号，即可查看已经同步的学习记录。
+              {androidLocal
+                ? "任务只保存在这台设备。需要带到其他设备时，在“设置 → 数据与同步”导出 ZIP，再到目标设备恢复。"
+                : "在其他设备登录同一账号，即可查看已经同步的学习记录。"}
             </p>
           </section>
           <div className="personal-stats">
@@ -146,7 +149,7 @@ export function Personal({
             <div><h3>使用引导</h3><p className="muted">重新查看创建任务、记录中断、续接和手动同步的步骤。</p></div>
             <button className="secondary" onClick={onShowGuide}>查看引导</button>
           </section>
-          <section className="panel personal-actions">
+          {!androidLocal && <section className="panel personal-actions">
             <div>
               <h3>登录管理</h3>
               <p className="muted">
@@ -157,7 +160,7 @@ export function Personal({
               <LogOut size={16} />
               退出登录
             </button>
-          </section>
+          </section>}
         </div>
       )}
     </div>

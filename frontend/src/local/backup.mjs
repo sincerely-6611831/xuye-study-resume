@@ -28,6 +28,16 @@ export function backupChunks(bundles, limit = 48 * 1024 * 1024) {
 }
 
 export function downloadBlob(blob, name) {
+  // Android 内嵌窗口没有普通浏览器的下载管理器，交给系统文件选择器。
+  if (window.XuYeAndroid?.saveFile) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const encoded = String(reader.result || "").split(",")[1];
+      if (encoded) window.XuYeAndroid.saveFile(name, blob.type || "application/octet-stream", encoded);
+    };
+    reader.readAsDataURL(blob);
+    return;
+  }
   const url = URL.createObjectURL(blob),
     link = document.createElement("a");
   link.href = url;

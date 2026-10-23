@@ -7,10 +7,80 @@ export class ApiError extends Error {
     super(message);
   }
 }
+type AndroidBridge = {
+  isEmbedded?: () => boolean;
+  requestAi?: (id: string, path: string, body: string) => void;
+};
+const androidWindow = window as Window & {
+  XuYeAndroid?: AndroidBridge;
+  __xuYeNativeResolve?: (id: string, ok: boolean, payload: string) => void;
+};
+const pendingNative = new Map<
+  string,
+  { resolve: (value: unknown) => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
+>();
+// Android 的 Java 网络适配器在后台线程运行，结果通过一次性 ID 返回给对应请求。
+androidWindow.__xuYeNativeResolve = (id, ok, payload) => {
+  const waiting = pendingNative.get(id);
+  if (!waiting) return;
+  clearTimeout(waiting.timer);
+  pendingNative.delete(id);
+  if (ok) {
+    try { waiting.resolve(JSON.parse(payload)); }
+    catch { waiting.reject(new ApiError(502, "模型返回了无效数据")); }
+  } else waiting.reject(new ApiError(502, payload));
+};
+function fileAsBase64(file: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || "").split(",")[1] || "");
+    reader.onerror = () => reject(new ApiError(422, "无法读取音频文件"));
+    reader.readAsDataURL(file);
+  });
+}
+async function nativeAiRequest<T>(bridge: AndroidBridge, path: string, options: RequestInit): Promise<T> {
+  if (!bridge.requestAi) throw new ApiError(0, "APK 的模型模块不可用，请更新安装包。");
+  let body: Record<string, unknown>;
+  if (options.body instanceof FormData) {
+    const audio = options.body.get("file");
+    if (!(audio instanceof File)) throw new ApiError(422, "请选择音频文件");
+    body = {
+      config: JSON.parse(String(options.body.get("config") || "{}")),
+      name: audio.name,
+      mime: audio.type,
+      audio: await fileAsBase64(audio),
+    };
+  } else body = JSON.parse(String(options.body || "{}"));
+  const id = crypto.randomUUID();
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      pendingNative.delete(id);
+      reject(new ApiError(504, "模型请求超时"));
+    }, 135000);
+    pendingNative.set(id, { resolve: (value) => resolve(value as T), reject, timer });
+    try { bridge.requestAi!(id, path, JSON.stringify(body)); }
+    catch (error) {
+      clearTimeout(timer);
+      pendingNative.delete(id);
+      reject(new ApiError(502, (error as Error).message));
+    }
+  });
+}
 export async function remoteApi<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
+  // Android 安装包内置网页与本机学习仓库。首次启动不依赖电脑网关。
+  // 连接电脑时仍可使用 APK 中的“连接电脑”入口切换到远端登录空间。
+  const android = androidWindow.XuYeAndroid;
+  if (android?.isEmbedded?.()) {
+    if (path === "/auth/me" || path === "/auth/login" || path === "/auth/register")
+      return { id: "android-local", username: "本机用户" } as T;
+    if (path === "/auth/logout") return {} as T;
+    if (path.startsWith("/local-ai/") && path !== "/local-ai/settings-bootstrap")
+      return nativeAiRequest<T>(android, path, options);
+    throw new ApiError(0, "本机学习功能可离线使用；跨设备同步需先连接电脑。");
+  }
   const isFile = options.body instanceof FormData;
   let response: Response;
   try {

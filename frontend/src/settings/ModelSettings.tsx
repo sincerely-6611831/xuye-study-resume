@@ -38,6 +38,9 @@ export function ModelSettings({
   onUpdated: (s: AppSettings) => void;
   notify: (s: string) => void;
 }) {
+  const androidLocal = (
+    window as Window & { XuYeAndroid?: { isEmbedded?: () => boolean } }
+  ).XuYeAndroid?.isEmbedded?.() ?? false;
   const [editing, setEditing] = useState<ModelProfile | "new" | null>(null);
   const [removing, setRemoving] = useState<ModelProfile | null>(null);
   const [busy, setBusy] = useState(false);
@@ -207,7 +210,9 @@ export function ModelSettings({
         </label>
         <div className="help-note">
           <KeyRound size={15} />{" "}
-          配置保存在本机，API密钥由当前网关加密封装，保存后不回显；学习备份和任务同步不包含模型配置与密钥。
+          {androidLocal
+            ? "配置保存在这台设备，API密钥由 Android 系统密钥库加密，保存后不回显；学习备份不包含模型配置与密钥。"
+            : "配置保存在本机，API密钥由当前网关加密封装，保存后不回显；学习备份和任务同步不包含模型配置与密钥。"}
         </div>
       </section>
       <section className="panel">
@@ -230,8 +235,9 @@ export function ModelSettings({
           Completions消息协议的接口。请求地址需填写完整端点，模型名称以服务商控制台为准。
         </p>
         <p className="help-note">
-          本地模型需要先在运行Python网关的电脑上启动Ollama或LM
-          Studio服务，并准备好要使用的模型。localhost指这台网关电脑；手机可通过网关调用该电脑上的模型。
+          {androidLocal
+            ? "APK 会直接连接这里填写的接口。手机上的 localhost 指手机自身；如果模型运行在电脑上，请填写电脑的局域网 IP、开放服务监听地址，并保持两台设备联网。"
+            : "本地模型需要先在运行Python网关的电脑上启动Ollama或LM Studio服务，并准备好要使用的模型。localhost指这台网关电脑；手机可通过网关调用该电脑上的模型。"}
         </p>
         {!settings.ai.profiles.length && (
           <div className="empty settings-empty">

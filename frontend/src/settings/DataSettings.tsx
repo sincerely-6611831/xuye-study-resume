@@ -19,6 +19,9 @@ export function DataSettings({
   notify: (s: string) => void;
   changed: () => void;
 }) {
+  const androidLocal = (
+    window as Window & { XuYeAndroid?: { isEmbedded?: () => boolean } }
+  ).XuYeAndroid?.isEmbedded?.() ?? false;
   const [busy, setBusy] = useState(false);
   const [restoreVersion, setRestoreVersion] = useState(0);
   async function restore(file: File) {
@@ -47,13 +50,22 @@ export function DataSettings({
   return (
     <div className="stack">
       {/* 共用忙碌状态，恢复备份期间禁止同时接收或发送任务。 */}
-      <SyncSettings
+      {!androidLocal && <SyncSettings
         key={restoreVersion}
         notify={notify}
         changed={changed}
         busy={busy}
         setBusy={setBusy}
-      />
+      />}
+      {androidLocal && (
+        <section className="panel">
+          <h2><Smartphone size={20} /> 这台设备的本机空间</h2>
+          <p className="muted">
+            任务、附件和中断记录只存放在这台 Android 设备。跨设备转移时请在下方导出完整 ZIP，
+            再到另一设备导入。顶部“连接电脑”可进入共享账号空间，两个空间的数据互相独立。
+          </p>
+        </section>
+      )}
       <div className="settings-grid">
         <section className="panel">
           <div className="section-heading">
@@ -126,10 +138,14 @@ export function DataSettings({
               在其他设备继续
             </h3>
             <p className="muted">
-              同一网络中，用其他设备打开这台电脑的局域网地址并登录同一账号。在原设备发送所选任务，再在新设备获取远端任务并接收。
+              {androidLocal
+                ? "先导出 ZIP，再在另一设备导入，原任务和副本会分别保留。"
+                : "同一网络中，用其他设备打开这台电脑的局域网地址并登录同一账号。在原设备发送所选任务，再在新设备获取远端任务并接收。"}
             </p>
             <small>
-              每台设备保存自己的记录，离线也可编辑。同步和AI计算需要连接运行网关的电脑，跨网络使用需要部署统一HTTPS服务。
+              {androidLocal
+                ? "本机模型与语音接口可直接连接你配置的服务；APK 不包含模型权重。"
+                : "每台设备保存自己的记录，离线也可编辑。同步和AI计算需要连接运行网关的电脑，跨网络使用需要部署统一HTTPS服务。"}
             </small>
           </section>
           <section className="panel">
