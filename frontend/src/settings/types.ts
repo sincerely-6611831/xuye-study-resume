@@ -25,4 +25,13 @@ export interface AppSettings {
   };
   http_ai_configured: boolean;
   model: string;
+  speech: {
+    enabled: boolean;
+    api_url: string;
+    model: string;
+    language: string;
+    timeout: number;
+    has_api_key: boolean;
+    summary_profile_id: string | null;
+  };
 }

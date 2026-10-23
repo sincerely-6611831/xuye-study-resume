@@ -12,6 +12,7 @@ import {
   PenLine,
   RefreshCw,
   ArrowUpRight,
+  Mic,
 } from "lucide-react";
 import { api, ApiError, post } from "../api/client";
 import {
@@ -22,6 +23,8 @@ import {
 } from "../sync/storage.mjs";
 import { AIPanel } from "../resume/AIPanel";
 import { DraftGuard } from "../sync/draft-state.mjs";
+import { VoiceAssistant } from "../voice/VoiceAssistant";
+import { mergeVoiceFields } from "../voice/fields.mjs";
 import {
   emptySnapshot,
   newId,
@@ -67,6 +70,7 @@ export function Workspace({
   const [syncText, setSyncText] = useState("正在读取");
   const [conflict, setConflict] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [showVoice, setShowVoice] = useState(false);
   const taskRef = useRef<Task | null>(null);
   const guard = useRef<DraftGuard | null>(null);
   const formRef = useRef<Snapshot>(emptySnapshot());
@@ -492,6 +496,14 @@ export function Workspace({
               <p className="muted">
                 只填前两项，也能保存一次完整的暂停。更多细节可以慢慢补充。
               </p>
+              <button
+                className="secondary voice-launch"
+                disabled={busy || conflict}
+                onClick={() => setShowVoice(true)}
+              >
+                <Mic size={17} />
+                用语音整理中断记录
+              </button>
               <div className="stack">
                 {fields.map(([key, label, placeholder]) => (
                   <label key={key}>
@@ -789,6 +801,29 @@ export function Workspace({
             );
           })}
         </section>
+      )}
+      {showVoice && (
+        <VoiceAssistant
+          taskId={taskId}
+          plugin={plugin}
+          onClose={() => setShowVoice(false)}
+          onApply={(result, selectedFields, append) => {
+            if (busyRef.current || guard.current?.conflict)
+              throw new Error("请先完成同步或处理版本冲突，再填入语音建议。");
+            // 确认时才读取最新草稿；整理过程不会锁住用户此前写下的内容。
+            const next = mergeVoiceFields(
+              formRef.current,
+              result,
+              selectedFields,
+              plugin?.fields.map((f) => f.key) || [],
+              append,
+            );
+            edit(next as Snapshot);
+            setExpanded(true);
+            setShowVoice(false);
+            notify("语音内容已填入本机草稿，请检查后保存并暂停。");
+          }}
+        />
       )}
     </>
   );

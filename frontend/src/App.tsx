@@ -3,9 +3,8 @@ import {
   Bookmark,
   LayoutDashboard,
   History,
-  Puzzle,
+  UserRound,
   Plus,
-  LogOut,
   RefreshCw,
   WifiOff,
   X,
@@ -17,7 +16,7 @@ import { Login } from "./auth/Login";
 import { TaskBoard } from "./tasks/TaskBoard";
 import { NewTask } from "./tasks/NewTask";
 import { Workspace } from "./workspace/Workspace";
-import { Settings } from "./settings/Settings";
+import { Personal } from "./personal/Personal";
 import { useAppearance } from "./settings/useAppearance";
 import { Modal } from "./components/Modal";
 import {
@@ -44,6 +43,7 @@ export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [plugins, setPlugins] = useState<Plugin[]>([]);
   const [view, setView] = useState("tasks");
+  const [personalSection, setPersonalSection] = useState("account");
   const [selected, setSelected] = useState<string | null>(null);
   const [newTask, setNewTask] = useState(false);
   const [toast, setToast] = useState("");
@@ -172,6 +172,8 @@ export default function App() {
       setSelected(null);
       setTasks([]);
       setPlugins([]);
+      setView("tasks");
+      setPersonalSection("account");
     } catch (e) {
       notify((e as Error).message);
     }
@@ -193,13 +195,13 @@ export default function App() {
           <span>RESUME</span>
         </div>
         <div className="space-label">
-          我的学习空间 <span>V1.1</span>
+          我的学习空间 <span>V1.2</span>
         </div>
         <nav aria-label="主导航">
           {[
             ["tasks", "学习任务", LayoutDashboard],
             ["history", "已完成与归档", History],
-            ["settings", "设置中心", Puzzle],
+            ["personal", "个人", UserRound],
           ].map(([key, label, Icon]) => {
             const I = Icon as typeof Bookmark;
             return (
@@ -232,22 +234,7 @@ export default function App() {
           </p>
           <span>PAUSE. SAVE. RESUME.</span>
         </div>
-        <div className="user-block">
-          <span className="avatar">
-            {user.username.slice(0, 1).toUpperCase()}
-          </span>
-          <div>
-            <strong>{user.username}</strong>
-            <small>个人学习空间</small>
-          </div>
-          <button
-            aria-label="退出登录"
-            className="icon-button"
-            onClick={logout}
-          >
-            <LogOut size={17} />
-          </button>
-        </div>
+        <div className="personal-sidebar-note">账号与偏好，尽在“个人”</div>
       </aside>
       <div className="main-shell">
         <header className="topbar">
@@ -255,8 +242,10 @@ export default function App() {
             我的空间 <span>/</span>{" "}
             {selected
               ? "学习工作台"
-              : view === "settings"
-                ? "设置中心"
+              : view === "personal"
+                ? personalSection === "settings"
+                  ? "个人 / 设置"
+                  : "个人"
                 : view === "history"
                   ? "学习归档"
                   : "学习任务"}
@@ -305,8 +294,13 @@ export default function App() {
               notify={notify}
               changed={() => refresh().catch(() => {})}
             />
-          ) : view === "settings" ? (
-            <Settings
+          ) : view === "personal" ? (
+            <Personal
+              user={user}
+              tasks={tasks}
+              section={personalSection}
+              onSectionChange={setPersonalSection}
+              onLogout={logout}
               plugins={plugins}
               notify={notify}
               changed={() => refresh().catch(() => {})}
@@ -344,7 +338,7 @@ export default function App() {
         {[
           ["tasks", "任务", LayoutDashboard],
           ["history", "归档", History],
-          ["settings", "设置", Puzzle],
+          ["personal", "个人", UserRound],
         ].map(([k, text, Icon]) => {
           const I = Icon as typeof Bookmark;
           return (

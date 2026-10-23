@@ -147,6 +147,8 @@ def resolve_model(db, user_id, profile_id=None):
 
 @router.get("")
 def get_settings(request: Request, user=Depends(current_user)):
+    from .settings_voice import public_voice
+
     with request.app.state.db.transaction() as c:
         p = preferences(c, user["id"])
         profiles = [
@@ -156,6 +158,7 @@ def get_settings(request: Request, user=Depends(current_user)):
                 (user["id"],),
             )
         ]
+        speech = public_voice(c, user["id"])
     selected = next(
         (x for x in profiles if x["id"] == p["ai"]["active_profile_id"]), None
     )
@@ -170,7 +173,8 @@ def get_settings(request: Request, user=Depends(current_user)):
         },
         "http_ai_configured": bool(selected or env_available),
         "model": selected["model"] if selected else os.getenv("AI_MODEL", ""),
-        "version": "1.1.0",
+        "speech": speech,
+        "version": "1.2.0",
     }
 
 
@@ -255,6 +259,16 @@ def remove_model(profile_id: str, request: Request, user=Depends(current_user)):
             c.execute(
                 "UPDATE user_settings SET ai=? WHERE user_id=?",
                 (dumps(DEFAULT_AI), user["id"]),
+            )
+        # 整理模型被移除后改为跟随默认，避免语音页一直引用已不存在的配置。
+        from .settings_voice import read_voice
+
+        voice = read_voice(c, user["id"])
+        if voice["summary_profile_id"] == profile_id:
+            voice["summary_profile_id"] = None
+            c.execute(
+                "UPDATE voice_settings SET body=? WHERE user_id=?",
+                (dumps(voice), user["id"]),
             )
     return get_settings(request, user)
 

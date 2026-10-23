@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { api, post } from "../api/client";
 import { Modal } from "../components/Modal";
+import { VoiceSettings } from "./VoiceSettings";
 import type { AppSettings, ModelProfile } from "./types";
 
 export function ModelSettings({
@@ -111,6 +112,11 @@ export function ModelSettings({
   }
   return (
     <div className="stack">
+      <VoiceSettings
+        settings={settings}
+        onUpdated={onUpdated}
+        notify={notify}
+      />
       <section className="panel">
         <div className="section-heading">
           <div>
