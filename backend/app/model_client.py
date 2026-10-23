@@ -1,6 +1,38 @@
 """HTTP模型协议与业务分开；连接测试和正式生成使用同一条调用路径。"""
 
 import httpx
+from urllib.parse import urlsplit, urlunsplit
+
+
+def send_models(config):
+    """从同根Chat Completions地址推导模型列表，不跳到别的主机。"""
+    url = urlsplit(config["api_url"])
+    path = url.path.rstrip("/")
+    suffix = "/chat/completions"
+    if not path.endswith(suffix):
+        raise ValueError("读取模型需要Chat Completions地址")
+    endpoint = urlunsplit(
+        (url.scheme, url.netloc, path[: -len(suffix)] + "/models", "", "")
+    )
+    headers = (
+        {"Authorization": "Bearer " + config["api_key"]} if config["api_key"] else {}
+    )
+    with httpx.Client(
+        timeout=config["timeout"], follow_redirects=False, trust_env=False
+    ) as client:
+        response = client.get(endpoint, headers=headers)
+        response.raise_for_status()
+        data = response.json()["data"]
+    if not isinstance(data, list) or len(data) > 1000:
+        raise ValueError("模型列表格式无效或过长")
+    models = []
+    for item in data:
+        name = item.get("id") if isinstance(item, dict) else None
+        if not isinstance(name, str) or not 0 < len(name.strip()) <= 150:
+            raise ValueError("模型名称格式无效")
+        if name not in models:
+            models.append(name)
+    return models
 
 
 def send_chat(config, prompt):

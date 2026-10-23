@@ -6,7 +6,8 @@ import {
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
-import { api } from "../api/client";
+import { downloadBackup, restoreBackup } from "../local/backup.mjs";
+import { SyncSettings } from "./SyncSettings";
 import type { Plugin } from "../types";
 
 export function DataSettings({
@@ -19,16 +20,13 @@ export function DataSettings({
   changed: () => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const [restoreVersion, setRestoreVersion] = useState(0);
   async function restore(file: File) {
     setBusy(true);
     try {
-      const body = new FormData();
-      body.append("file", file);
-      const r = await api<{ imported: number }>("/backup/import", {
-        method: "POST",
-        body,
-      });
+      const r = await restoreBackup(file);
       notify(`已恢复${r.imported}个任务副本，原有记录保留。`);
+      setRestoreVersion((value) => value + 1);
       changed();
     } catch (e) {
       notify((e as Error).message);
@@ -36,8 +34,26 @@ export function DataSettings({
       setBusy(false);
     }
   }
+  async function download(format: "zip" | "json" | "markdown") {
+    setBusy(true);
+    try {
+      await downloadBackup(format);
+    } catch (e) {
+      notify((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
-    <>
+    <div className="stack">
+      {/* 共用忙碌状态，恢复备份期间禁止同时接收或发送任务。 */}
+      <SyncSettings
+        key={restoreVersion}
+        notify={notify}
+        changed={changed}
+        busy={busy}
+        setBusy={setBusy}
+      />
       <div className="settings-grid">
         <section className="panel">
           <div className="section-heading">
@@ -78,19 +94,19 @@ export function DataSettings({
                 ["json", "导出结构化数据（JSON）"],
                 ["zip", "下载完整备份（ZIP）"],
               ].map(([type, name]) => (
-                <a
+                <button
                   key={type}
-                  href={"/api/export?format=" + type}
                   className="secondary full"
-                  download
+                  disabled={busy}
+                  onClick={() => download(type as "zip" | "json" | "markdown")}
                 >
                   <Download size={16} />
                   {name}
-                </a>
+                </button>
               ))}
               <label className="secondary full file-button">
                 <Upload size={16} />
-                {busy ? "正在恢复…" : "从完整ZIP恢复副本"}
+                {busy ? "正在处理…" : "从完整ZIP恢复副本"}
                 <input
                   type="file"
                   accept=".zip"
@@ -110,10 +126,10 @@ export function DataSettings({
               在其他设备继续
             </h3>
             <p className="muted">
-              同一网络中，用其他设备打开这台电脑的局域网地址并登录同一账号。更换设备前先同步或暂停；接续后可明确接管当前会话。
+              同一网络中，用其他设备打开这台电脑的局域网地址并登录同一账号。在原设备发送所选任务，再在新设备获取远端任务并接收。
             </p>
             <small>
-              跨网络使用需要部署统一HTTPS服务。本机断网草稿只有同步后才会出现在其他设备。
+              每台设备保存自己的记录，离线也可编辑。同步和AI计算需要连接运行网关的电脑，跨网络使用需要部署统一HTTPS服务。
             </small>
           </section>
           <section className="panel">
@@ -122,11 +138,11 @@ export function DataSettings({
               记录保留原则
             </h3>
             <p className="muted">
-              AI建议经过人工确认；快照和原始回复追加保存。离线记录、服务端记录和冲突会显示不同状态。
+              AI建议经过人工确认；快照和原始回复保存在本机。同步冲突会提示保留副本；备份包含学习记录和附件，不包含模型配置与密钥。
             </p>
           </section>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -25,6 +25,7 @@ import { AIPanel } from "../resume/AIPanel";
 import { DraftGuard } from "../sync/draft-state.mjs";
 import { VoiceAssistant } from "../voice/VoiceAssistant";
 import { mergeVoiceFields } from "../voice/fields.mjs";
+import { downloadResource } from "../local/backup.mjs";
 import {
   emptySnapshot,
   newId,
@@ -141,7 +142,7 @@ export function Workspace({
     };
   }, [taskId]);
 
-  // 输入先保存本机。明确点击“同步草稿”或“暂停”才写服务器，避免频繁请求与编辑竞争。
+  // 输入先保存本机。明确点击“保存本机草稿”或“暂停”才写服务器，避免频繁请求与编辑竞争。
   // 每次onChange立即安排写入；切换页面时也使用当前捕获的值完成这次保存。
   function edit(next: Snapshot) {
     if (busyRef.current) return;
@@ -231,7 +232,7 @@ export function Workspace({
     await run(async () => {
       await persistLocal();
       const t = taskRef.current!;
-      if (!t.session) throw new Error("请先开始学习，再同步草稿。");
+      if (!t.session) throw new Error("请先开始学习，再保存本机草稿。");
       const submission = guard.current!.beginWrite();
       const updated = await api<Task>(`/tasks/${taskId}/draft`, {
         method: "PUT",
@@ -249,7 +250,7 @@ export function Workspace({
       setSyncText(
         guard.current!.dirty
           ? "较早输入已同步 · 新编辑保留在本机"
-          : "已同步 · 其他设备可读取",
+          : "已保存本机 · 可在设置中手动同步",
       );
     });
   }
@@ -287,13 +288,13 @@ export function Workspace({
           await removeLocal(draftKey);
         else await persistLocal();
         await reload();
-        setSyncText("中断快照已同步");
+        setSyncText("中断快照已保存本机");
         setTab("resume");
         notify("已留下中断快照，下次可以从这里继续。");
       } catch (e) {
         if (e instanceof ApiError && e.status !== 0 && e.status !== 409)
           await removeLocal(key);
-        setSyncText("暂停记录保存在本机 · 等待提交");
+        setSyncText("暂停记录保存在本机 · 等待处理");
         changed();
         throw e;
       }
@@ -327,7 +328,7 @@ export function Workspace({
       body.append("file", file);
       await api(`/tasks/${taskId}/resources`, { method: "POST", body });
       await reload();
-      notify("材料已上传，其他设备可以下载。");
+      notify("材料已保存在本机，选中同步任务后其他设备才能接收。");
     });
   }
   async function markProgress() {
@@ -417,7 +418,7 @@ export function Workspace({
                 disabled={busy}
               >
                 <Save size={15} />
-                同步草稿
+                保存本机草稿
               </button>
               <button className="primary small" onClick={pause} disabled={busy}>
                 <Pause size={15} />
@@ -640,14 +641,17 @@ export function Workspace({
                   </label>
                 </div>
                 <p className="muted">
-                  上传原始材料，换设备也能找到。单个文件最多10MB。
+                  材料先保存在本机，可随任务手动同步。单个文件最多10MB。
                 </p>
                 {detail.resources.map((r) => (
-                  <a
+                  <button
                     className="resource"
                     key={r.id}
-                    href={"/api/resources/" + r.id}
-                    download
+                    onClick={() =>
+                      downloadResource(r.id).catch((e: Error) =>
+                        notify(e.message),
+                      )
+                    }
                   >
                     <FileText size={17} />
                     <span>
@@ -655,7 +659,7 @@ export function Workspace({
                       <small>{(r.size / 1024).toFixed(1)} KB</small>
                     </span>
                     <ArrowUpRight size={15} />
-                  </a>
+                  </button>
                 ))}
               </section>
               {active && (
@@ -698,7 +702,7 @@ export function Workspace({
                     disabled={busy || t.status === "done"}
                     onClick={async () => {
                       if (guard.current!.dirty) {
-                        notify("请先同步草稿或保存并暂停，再完成任务。");
+                        notify("请先保存本机草稿或保存并暂停，再完成任务。");
                         return;
                       }
                       await patch({ status: "done" });

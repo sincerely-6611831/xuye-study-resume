@@ -33,6 +33,10 @@ def current_user(request: Request):
         ).fetchone()
     if not row:
         raise HTTPException(401, "请先登录")
+    # 浏览器多标签页共用登录Cookie；旧页面必须明确绑定请求开始时的账号。
+    expected_user = request.headers.get("X-Study-User")
+    if expected_user is not None and expected_user != row["id"]:
+        raise HTTPException(409, "账号已切换，请刷新当前页面")
     return dict(row)
 
 

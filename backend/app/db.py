@@ -49,6 +49,8 @@ class Database:
             CREATE TABLE IF NOT EXISTS model_profiles(id TEXT PRIMARY KEY, user_id TEXT NOT NULL, name TEXT NOT NULL, api_url TEXT NOT NULL, model TEXT NOT NULL, encrypted_key TEXT NOT NULL, timeout INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS ai_job_models(job_id TEXT PRIMARY KEY, profile_name TEXT NOT NULL, model_name TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS voice_settings(user_id TEXT PRIMARY KEY, body TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS device_sync(user_id TEXT NOT NULL, task_id TEXT NOT NULL, title TEXT NOT NULL, revision INTEGER NOT NULL, updated_at TEXT NOT NULL, device_name TEXT NOT NULL, bundle TEXT NOT NULL, PRIMARY KEY(user_id,task_id));
+            CREATE TABLE IF NOT EXISTS device_sync_history(user_id TEXT NOT NULL, task_id TEXT NOT NULL, revision INTEGER NOT NULL, updated_at TEXT NOT NULL, device_name TEXT NOT NULL, bundle TEXT NOT NULL, PRIMARY KEY(user_id,task_id,revision));
             CREATE INDEX IF NOT EXISTS task_owner ON tasks(user_id, updated_at);
             CREATE INDEX IF NOT EXISTS checkpoint_task ON checkpoints(task_id, created_at);
             CREATE UNIQUE INDEX IF NOT EXISTS one_active_session ON sessions(user_id) WHERE ended_at IS NULL;

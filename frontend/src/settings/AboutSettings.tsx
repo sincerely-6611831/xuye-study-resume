@@ -76,7 +76,7 @@ export function AboutSettings() {
           <p className="muted">
             保存中断时的进度、思路与下一步，帮助你从上次停下的地方继续。
           </p>
-          <small>应用版本 1.2.0 · 由硅基觉醒团队参赛制作</small>
+          <small>应用版本 1.3.0 · 由硅基觉醒团队参赛制作</small>
         </div>
       </section>
     </div>

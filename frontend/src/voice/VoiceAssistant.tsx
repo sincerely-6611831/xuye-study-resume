@@ -7,6 +7,7 @@ import { ModelSettings } from "../settings/ModelSettings";
 import type { AppSettings } from "../settings/types";
 import { createTextGuard, VOICE_FIELDS } from "./fields.mjs";
 import type { Plugin } from "../types";
+import { readLocal, writeLocal } from "../sync/storage.mjs";
 
 export interface VoiceResult {
   fields: Record<string, string>;
@@ -40,6 +41,44 @@ export function VoiceAssistant({
   const guard = useRef(createTextGuard());
   const mounted = useRef(true);
   const abortRef = useRef<AbortController | null>(null);
+  const [restored, setRestored] = useState(false);
+  const voiceKey =
+    JSON.parse(localStorage.getItem("study-last-user") || "null")?.id +
+    ":voice:" +
+    taskId;
+  useEffect(() => {
+    const ticket = guard.current.ticket();
+    readLocal(voiceKey)
+      .then((saved: unknown) => {
+        if (!mounted.current || !guard.current.isCurrent(ticket)) return;
+        const value = saved as
+          | {
+              audio: File | null;
+              text: string;
+              result: VoiceResult | null;
+              selected: string[];
+              append: boolean;
+            }
+          | undefined;
+        if (value) {
+          setAudio(value.audio);
+          setText(value.text);
+          setResult(value.result);
+          setSelected(value.selected);
+          setAppend(value.append);
+        }
+      })
+      .catch(() => setError("本机语音记录读取失败，请检查浏览器存储。"))
+      .finally(() => {
+        if (mounted.current) setRestored(true);
+      });
+  }, [voiceKey]);
+  useEffect(() => {
+    if (restored)
+      writeLocal(voiceKey, { audio, text, result, selected, append }).catch(
+        () => setError("语音暂存失败，请先填入表单保存。"),
+      );
+  }, [audio, text, result, selected, append, restored, voiceKey]);
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -129,7 +168,7 @@ export function VoiceAssistant({
       <Modal title="语音整理中断记录" onClose={onClose}>
         <div className="stack voice-assistant">
           <p className="muted">
-            说说做到哪里、刚才的思路、卡点和下一步。AI只整理你说出的内容，确认后才填入草稿。
+            说说做到哪里、刚才的思路、卡点和下一步。AI只整理你说出的内容，确认后才填入草稿。未填入口述会暂存在本机，填入的学习字段可随任务同步。
           </p>
           <VoiceCapture
             audio={audio}

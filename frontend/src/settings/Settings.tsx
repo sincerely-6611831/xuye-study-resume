@@ -69,13 +69,13 @@ export function Settings({
           <h1>设置中心</h1>
           <p>选用合适的模型，调整舒适的界面，按自己的节奏继续学习。</p>
         </div>
-        <span className="badge">V1.2</span>
+        <span className="badge">V1.3</span>
       </div>
       <nav className="tabs settings-tabs" aria-label="设置分类">
         {[
           { id: "models", title: "模型与API", Icon: Server },
           { id: "appearance", title: "外观设置", Icon: Palette },
-          { id: "data", title: "数据与插件", Icon: Database },
+          { id: "data", title: "数据与同步", Icon: Database },
           { id: "about", title: "关于我们", Icon: HeartHandshake },
         ].map(({ id, title, Icon }) => (
           <button

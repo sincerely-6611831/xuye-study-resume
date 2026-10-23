@@ -133,6 +133,88 @@ select:focus {
   font-size: calc(12px * var(--font-scale, 1));
   margin-top: 15px;
 }
+/* 同步区把本机与远端分开展示，勾选范围始终清晰可见。 */
+.sync-task-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+.sync-task-list {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 16px;
+}
+.sync-task-list legend {
+  padding: 0 7px;
+  font-weight: 600;
+}
+.sync-task-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.sync-task-row input {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  margin-top: 3px;
+  accent-color: var(--accent-ink);
+}
+.sync-task-row > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.sync-task-row small,
+.sync-storage small {
+  display: block;
+  margin-top: 6px;
+  line-height: 1.7;
+}
+.sync-task-list > button {
+  margin-top: 16px;
+}
+.sync-conflict {
+  color: #946018;
+}
+html[data-theme="dark"] .sync-conflict {
+  color: #e6c687;
+}
+.sync-storage {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 18px;
+}
+.sync-storage .actions {
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.sync-result {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sync-disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.model-list-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.model-list-picker > button {
+  align-self: flex-start;
+}
+@media (max-width: 767px) {
+  .sync-task-columns {
+    grid-template-columns: 1fr;
+  }
+}
 .settings-empty {
   min-height: 180px;
   margin-bottom: 19px;

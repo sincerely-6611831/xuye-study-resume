@@ -53,6 +53,21 @@ export default function App() {
   const [syncBusy, setSyncBusy] = useState(false);
   const [fatal, setFatal] = useState("");
   const notify = useCallback((s: string) => setToast(s), []);
+  useEffect(() => {
+    const switched = (event: StorageEvent) => {
+      if (event.key === "study-last-user" && user?.id) {
+        const next = event.newValue ? JSON.parse(event.newValue) : null;
+        if (next?.id !== user.id) {
+          setUser(null);
+          setSelected(null);
+          setTasks([]);
+          setPlugins([]);
+        }
+      }
+    };
+    window.addEventListener("storage", switched);
+    return () => window.removeEventListener("storage", switched);
+  }, [user?.id]);
 
   useEffect(() => {
     api<User>("/auth/me")
@@ -195,7 +210,7 @@ export default function App() {
           <span>RESUME</span>
         </div>
         <div className="space-label">
-          我的学习空间 <span>V1.2</span>
+          我的学习空间 <span>V1.3</span>
         </div>
         <nav aria-label="主导航">
           {[
@@ -262,7 +277,7 @@ export default function App() {
             )}
             <span className="connection">
               <i className={"dot " + (offline ? "amber" : "green")} />
-              {offline ? "离线草稿模式" : "服务已连接"}
+              {offline ? "离线本机保存" : "本机保存 · 手动同步"}
             </span>
             <button
               aria-label="刷新任务列表"
@@ -276,7 +291,7 @@ export default function App() {
         {offline && (
           <div className="offline-banner">
             <WifiOff size={16} />
-            当前仅能查看已缓存内容并保存本机草稿，联网后再提交。
+            当前使用本机记录，可创建任务、编辑和暂停。联网后可在设置中选择同步，AI需要连接模型网关。
           </div>
         )}
         {fatal && <div className="offline-banner error">{fatal}</div>}
