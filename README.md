@@ -3,11 +3,11 @@
 ## 多端版本进展
 
 - 网页：登录后首次显示四步引导，之后可从“个人 → 查看引导”重看；首页“总览”显示待续接、学习中、已完成及下一步。手机单栏，平板在 768dp 以上保留双栏。
-- Windows：原有 `start.cmd` 可直接运行本地网页。已打包的 `dist/XuYe/XuYe.exe` 可以直接运行，并经本机 8002 端口实际验证；复制时需保留整个 `dist/XuYe/` 文件夹。需要重新制作时，在 PowerShell 运行 `./build-windows.ps1`，先安装 Python、Node.js，脚本会安装 PyInstaller。打包版数据位于当前 Windows 用户的 `%LOCALAPPDATA%/XuYe/data`，与开发版 `data/` 分开；学习记录可通过 ZIP 与选择同步转移。
-- Android 手机/平板：用 Android Studio 打开 `android/`，安装 Android SDK 35 与 JDK 17 后运行 `gradlew.bat :mobile:assembleDebug`（或在 Studio 中构建 `mobile`）。工程附带 Gradle 8.11.1 Wrapper。首次输入电脑网关的局域网地址，手机和平板的 WebView 各自保存本地数据。桌面小组件使用 Android 官方 `AppWidgetProvider`，展示当前手机最近一次打开续页时的待续接数量和标题；进入应用后刷新。普通局域网 HTTP 下麦克风权限受 WebView 安全上下文限制，可使用系统录音后上传音频。
-- Wear OS：同一 Android 工程的 `wear` 模块是圆屏简化总览，使用安全边距和滚动容器。配对 Android 手机打开续页后，使用 Google Play services Data Layer 传送待续接数量和标题。手表不传完整任务、附件或模型密钥，也不在手表上编辑任务；需要支持 Wear OS 和 Data Layer 的配对设备。
+- Windows：双击 `dist/XuYe/StartXuYe.exe`；这是 Visual Studio 2022 C++ 编译的启动程序，会启动同文件夹内的 Python 服务并打开网页。复制时保留整个 `dist/XuYe/` 文件夹。`build-windows.ps1` 可重新构建，源码开发仍可使用 `start.cmd`。打包版数据位于当前用户的 `%LOCALAPPDATA%/XuYe/data`，与开发版 `data/` 分开；学习记录可通过 ZIP 与选择同步转移。
+- Android 手机/平板：将 `dist/Android/XuYe-Phone-Tablet-1.4-debug.apk` 安装到 Android 8.0 及以上设备。首次输入运行 Windows 服务的电脑局域网地址（例如 `http://192.168.1.10:8000`）；手机和平板的 WebView 各自保存本地数据。桌面小组件使用 Android 官方 `AppWidgetProvider`，展示最近一次打开续页时的待续接数量和标题；进入应用后刷新。普通局域网 HTTP 下麦克风权限受 WebView 安全上下文限制，可使用系统录音后上传音频。需要重新构建时运行 `build-android.ps1`，或在 Android Studio 打开 `android/`。
+- Wear OS：`dist/Android/XuYe-WearOS-1.4-debug.apk` 是圆屏简化总览，使用安全边距和滚动容器。配对 Android 手机打开续页后，Google Play services Data Layer 传送待续接数量和标题。手表不传完整任务、附件或模型密钥，也不在手表上编辑任务；需要支持 Wear OS 和 Data Layer 的配对设备。
 
-当前开发机虽然有 Android SDK 37，但缺少本工程要求的 SDK 35 与 JDK 17，尚未生成或真机验证 APK。Android 小组件和手表显示需要在实际设备或模拟器上进一步验收。
+两个 APK 已由本机 Android SDK 35 和 JDK 17 编译，使用同一 Android Debug 签名；手机/平板包已在 Android 模拟器上安装并启动。手表包与桌面小组件尚未在对应设备验收。当前 APK 是可安装的测试签名版本，正式发布需配置由团队保管的发布密钥并重新签名。
 
 记录学习中断时的位置、思路和下一步，使用续学卡在电脑、手机和平板上接着学习。
 
