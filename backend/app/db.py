@@ -45,10 +45,13 @@ class Database:
             CREATE TABLE IF NOT EXISTS cards(id TEXT PRIMARY KEY, checkpoint_id TEXT NOT NULL, job_id TEXT, content TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS events(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, session_id TEXT NOT NULL, event_type TEXT NOT NULL, created_at TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS receipts(user_id TEXT NOT NULL, request_id TEXT NOT NULL, task_id TEXT NOT NULL, checkpoint_id TEXT NOT NULL, PRIMARY KEY(user_id, request_id));
+            CREATE TABLE IF NOT EXISTS user_settings(user_id TEXT PRIMARY KEY, appearance TEXT NOT NULL, ai TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS model_profiles(id TEXT PRIMARY KEY, user_id TEXT NOT NULL, name TEXT NOT NULL, api_url TEXT NOT NULL, model TEXT NOT NULL, encrypted_key TEXT NOT NULL, timeout INTEGER NOT NULL);
+            CREATE TABLE IF NOT EXISTS ai_job_models(job_id TEXT PRIMARY KEY, profile_name TEXT NOT NULL, model_name TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS task_owner ON tasks(user_id, updated_at);
             CREATE INDEX IF NOT EXISTS checkpoint_task ON checkpoints(task_id, created_at);
             CREATE UNIQUE INDEX IF NOT EXISTS one_active_session ON sessions(user_id) WHERE ended_at IS NULL;
-            PRAGMA user_version=1;
+            PRAGMA user_version=2;
             """)
             # 进程重启后，先前未完成的AI请求不能一直停留在“生成中”。
             c.execute(

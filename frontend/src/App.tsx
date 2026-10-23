@@ -18,6 +18,7 @@ import { TaskBoard } from "./tasks/TaskBoard";
 import { NewTask } from "./tasks/NewTask";
 import { Workspace } from "./workspace/Workspace";
 import { Settings } from "./settings/Settings";
+import { useAppearance } from "./settings/useAppearance";
 import { Modal } from "./components/Modal";
 import {
   readLocal,
@@ -38,6 +39,7 @@ interface Pending {
 export default function App() {
   // App负责登录、导航和全局缓存。任务内部的编辑状态交给Workspace，避免全局刷新覆盖输入。
   const [user, setUser] = useState<User | null>(null);
+  const { appearance, changeAppearance } = useAppearance(user?.id);
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [plugins, setPlugins] = useState<Plugin[]>([]);
@@ -191,13 +193,13 @@ export default function App() {
           <span>RESUME</span>
         </div>
         <div className="space-label">
-          我的学习空间 <span>V1.0</span>
+          我的学习空间 <span>V1.1</span>
         </div>
         <nav aria-label="主导航">
           {[
             ["tasks", "学习任务", LayoutDashboard],
             ["history", "已完成与归档", History],
-            ["settings", "插件与设置", Puzzle],
+            ["settings", "设置中心", Puzzle],
           ].map(([key, label, Icon]) => {
             const I = Icon as typeof Bookmark;
             return (
@@ -254,7 +256,7 @@ export default function App() {
             {selected
               ? "学习工作台"
               : view === "settings"
-                ? "插件与设置"
+                ? "设置中心"
                 : view === "history"
                   ? "学习归档"
                   : "学习任务"}
@@ -308,6 +310,8 @@ export default function App() {
               plugins={plugins}
               notify={notify}
               changed={() => refresh().catch(() => {})}
+              appearance={appearance}
+              onAppearanceChange={changeAppearance}
             />
           ) : (
             <TaskBoard

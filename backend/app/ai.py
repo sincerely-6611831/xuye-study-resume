@@ -1,14 +1,14 @@
 """AI适配层：真实对话导入、可选HTTP接口，以及无需AI的模板续学卡。"""
 
 import json
-import os
-import httpx
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from .auth import current_user
 from .db import uid, now, dumps, loads
 from .plugins import fallback_card, get_plugin
 from .tasks import owned, pack_checkpoint
 from .schemas import AIRequest, AIImport, CardAccept
+from .settings import resolve_model
+from .model_client import send_chat
 
 router = APIRouter(prefix="/api", tags=["AI与续学卡"])
 
@@ -100,6 +100,14 @@ def import_result(db, job_id, raw):
                     now(),
                 ),
             )
+            metadata = c.execute(
+                "SELECT * FROM ai_job_models WHERE job_id=?", (job["id"],)
+            ).fetchone()
+            if metadata:
+                c.execute(
+                    "INSERT INTO ai_job_models VALUES(?,?,?)",
+                    (job_id, metadata["profile_name"], metadata["model_name"]),
+                )
         c.execute(
             "UPDATE ai_jobs SET raw_output=?, status=?, error=NULL WHERE id=?",
             (raw, "received", job_id),
@@ -134,29 +142,10 @@ def import_result(db, job_id, raw):
         }
 
 
-def call_http_provider(db, job_id, prompt):
+def call_http_provider(db, job_id, prompt, config):
     """协议采用messages输入、choices[0].message.content输出。不同协议可另加适配器。"""
     try:
-        headers = (
-            {"Authorization": "Bearer " + os.environ["AI_API_KEY"]}
-            if os.getenv("AI_API_KEY")
-            else {}
-        )
-        with httpx.Client(
-            timeout=30, follow_redirects=False, trust_env=False
-        ) as client:
-            result = client.post(
-                os.environ["AI_API_URL"],
-                headers=headers,
-                json={
-                    "model": os.getenv("AI_MODEL", ""),
-                    "messages": [{"role": "user", "content": prompt}],
-                },
-            )
-            result.raise_for_status()
-            raw = result.json()["choices"][0]["message"]["content"]
-            if not isinstance(raw, str) or not 0 < len(raw) <= 60000:
-                raise ValueError("AI回复为空或过长")
+        raw = send_chat(config, prompt)
         import_result(db, job_id, raw)
     except Exception:
         # 不把供应商响应、密钥、内部地址或堆栈返回浏览器。
@@ -164,19 +153,10 @@ def call_http_provider(db, job_id, prompt):
             c.execute(
                 "UPDATE ai_jobs SET status='failed', error=? WHERE id=?",
                 (
-                    "AI接口调用失败，请检查服务端地址、密钥和响应格式；可改用手动导入。",
+                    "AI接口调用失败，请检查设置中的请求地址、模型、密钥和响应格式；可改用手动导入。",
                     job_id,
                 ),
             )
-
-
-@router.get("/settings")
-def settings(user=Depends(current_user)):
-    return {
-        "http_ai_configured": bool(os.getenv("AI_API_URL")),
-        "model": os.getenv("AI_MODEL", ""),
-        "version": "1.0.0",
-    }
 
 
 @router.get("/checkpoints/{checkpoint_id}/resume")
@@ -202,8 +182,11 @@ def create_job(
     background: BackgroundTasks,
     user=Depends(current_user),
 ):
-    if body.provider == "http_provider" and not os.getenv("AI_API_URL"):
-        raise HTTPException(422, "尚未配置AI_API_URL，请使用连小理对话导入。")
+    config = (
+        resolve_model(request.app.state.db, user["id"], body.profile_id)
+        if body.provider == "http_provider"
+        else None
+    )
     with request.app.state.db.transaction() as c:
         cp = owned_checkpoint(c, checkpoint_id, user["id"])
         task = loads(owned(c, cp["task_id"], user["id"])["body"])
@@ -215,8 +198,16 @@ def create_job(
             (jid, checkpoint_id, body.provider, status, prompt, None, None, now()),
         )
         result = dict(c.execute("SELECT * FROM ai_jobs WHERE id=?", (jid,)).fetchone())
+        if config:
+            c.execute(
+                "INSERT INTO ai_job_models VALUES(?,?,?)",
+                (jid, config["name"], config["model"]),
+            )
     if body.provider == "http_provider":
-        background.add_task(call_http_provider, request.app.state.db, jid, prompt)
+        # 使用请求开始时解析的配置，用户之后切换默认模型不影响已经发出的请求。
+        background.add_task(
+            call_http_provider, request.app.state.db, jid, prompt, config
+        )
     return result
 
 

@@ -205,6 +205,15 @@ async def restore(file: UploadFile, request: Request, user=Depends(current_user)
                             job["created_at"],
                         ),
                     )
+                    if job.get("model_name"):
+                        c.execute(
+                            "INSERT INTO ai_job_models VALUES(?,?,?)",
+                            (
+                                jid,
+                                job.get("profile_name") or "历史模型",
+                                job["model_name"],
+                            ),
+                        )
                 for card in d.get("cards", []):
                     content = {
                         **card["content"],

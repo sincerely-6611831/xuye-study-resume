@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import auth, tasks, ai, resources, exports
+from . import auth, tasks, ai, resources, exports, settings
 from .db import Database
 from .plugins import PLUGINS, get_plugin
 
@@ -18,7 +18,7 @@ load_dotenv(ROOT / ".env")
 
 
 def create_app(data_dir=None):
-    app = FastAPI(title="学习断片续接器", version="1.0.0")
+    app = FastAPI(title="学习断片续接器", version="1.1.0")
     app.state.db = Database(
         Path(data_dir) if data_dir else Path(os.getenv("STUDY_DATA_DIR", ROOT / "data"))
     )
@@ -56,12 +56,12 @@ def create_app(data_dir=None):
             response.headers["Cache-Control"] = "no-store"
         return response
 
-    for module in (auth, tasks, ai, resources, exports):
+    for module in (auth, tasks, ai, resources, exports, settings):
         app.include_router(module.router)
 
     @app.get("/api/health")
     def health():
-        return {"ok": True, "version": "1.0.0"}
+        return {"ok": True, "version": "1.1.0"}
 
     @app.get("/api/plugins")
     def plugins(user=Depends(auth.current_user)):

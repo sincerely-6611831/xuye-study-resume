@@ -122,7 +122,7 @@ def detail(task_id: str, request: Request, user=Depends(current_user)):
             jobs += [
                 dict(r)
                 for r in c.execute(
-                    "SELECT * FROM ai_jobs WHERE checkpoint_id=? ORDER BY created_at DESC",
+                    "SELECT ai_jobs.*, ai_job_models.profile_name, ai_job_models.model_name FROM ai_jobs LEFT JOIN ai_job_models ON ai_job_models.job_id=ai_jobs.id WHERE checkpoint_id=? ORDER BY created_at DESC",
                     (cp,),
                 )
             ]

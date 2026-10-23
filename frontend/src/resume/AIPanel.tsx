@@ -3,6 +3,7 @@ import { Sparkles, Copy, Check, ArrowRight } from "lucide-react";
 import { api, post } from "../api/client";
 import { Modal } from "../components/Modal";
 import { selectCachedResume } from "./select-card.mjs";
+import type { AppSettings } from "../settings/types";
 import {
   dateText,
   type Card,
@@ -31,6 +32,7 @@ export function AIPanel({
   const [editing, setEditing] = useState<Card | null>(null);
   const [busy, setBusy] = useState(false);
   const [configured, setConfigured] = useState(false);
+  const [aiSettings, setAISettings] = useState<AppSettings | null>(null);
   useEffect(() => {
     if (cp)
       api<{ content: CardContent; provider: string }>(
@@ -41,13 +43,33 @@ export function AIPanel({
           // 离线时优先使用已经缓存的人工确认版本，不能把用户整理的结果退回原模板。
           setResume(selectCachedResume(cp, detail.cards));
         });
-    api<{ http_ai_configured: boolean }>("/settings")
-      .then((s) => setConfigured(s.http_ai_configured))
-      .catch(() => {});
+    const refreshAI = () =>
+      api<AppSettings>("/settings")
+        .then((s) => {
+          setConfigured(s.http_ai_configured);
+          setAISettings(s);
+        })
+        .catch(() => {});
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshAI();
+    };
+    refreshAI();
+    window.addEventListener("focus", onVisible);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", onVisible);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [cp?.id, detail.cards.length]);
   async function create(provider: string) {
     setBusy(true);
     try {
+      if (provider === "http_provider") {
+        const latest = await api<AppSettings>("/settings");
+        setAISettings(latest);
+        setConfigured(latest.http_ai_configured);
+      }
+      // “当前模型”由后端按账号当前选择解析，不提交页面挂载时缓存的旧配置ID。
       const j = await post<AIJob>(`/checkpoints/${cp.id}/ai-jobs`, {
         provider,
       });
@@ -154,29 +176,53 @@ export function AIPanel({
         <div className="section-heading">
           <h2>
             <Sparkles size={18} />
-            让连小理帮你整理
+            AI辅助整理
           </h2>
-          <span className="badge">真实对话导入</span>
+          <span className="badge">
+            {aiSettings?.ai.default_provider === "http_provider"
+              ? aiSettings.model || "已选模型"
+              : "连小理 · 对话导入"}
+          </span>
         </div>
         <p className="muted">
-          复制这次中断的上下文，在连小理中完成实际交互，再导入回复。你可以修改并确认续学卡。
+          {aiSettings?.ai.default_provider === "http_provider"
+            ? "使用设置中选定的模型整理本次中断，也可以选择连小理手动对话。生成结果仍需你核对确认。"
+            : "复制这次中断的上下文，在连小理中完成实际交互，再导入回复。你可以修改并确认续学卡。"}
         </p>
         <div className="actions">
           <button
             className="primary"
-            onClick={() => create("manual_lianxiaoli")}
+            onClick={() =>
+              create(
+                aiSettings?.ai.default_provider === "http_provider" &&
+                  configured
+                  ? "http_provider"
+                  : "manual_lianxiaoli",
+              )
+            }
             disabled={busy}
           >
-            准备对话上下文
+            {aiSettings?.ai.default_provider === "http_provider" && configured
+              ? "使用当前模型生成"
+              : "准备对话上下文"}
             <ArrowRight size={16} />
           </button>
-          {configured && (
+          {(configured ||
+            aiSettings?.ai.default_provider === "http_provider") && (
             <button
               className="secondary"
-              onClick={() => create("http_provider")}
+              onClick={() =>
+                create(
+                  aiSettings?.ai.default_provider === "http_provider"
+                    ? "manual_lianxiaoli"
+                    : "http_provider",
+                )
+              }
               disabled={busy}
             >
-              调用已配置的AI接口
+              {aiSettings?.ai.default_provider === "http_provider"
+                ? "连小理手动对话"
+                : "调用已选AI接口"}
             </button>
           )}
         </div>
@@ -209,7 +255,7 @@ export function AIPanel({
               <summary>
                 {j.provider === "manual_lianxiaoli"
                   ? "连小理 · 手动导入"
-                  : "HTTP AI接口"}
+                  : `HTTP AI · ${j.profile_name || j.model_name || "已配置接口"}`}
                 <span>
                   {j.status} · {dateText(j.created_at)}
                 </span>

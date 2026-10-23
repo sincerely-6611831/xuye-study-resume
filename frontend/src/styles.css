@@ -1,10 +1,10 @@
 /* 基础色板集中管理；修改这里即可调整整个应用的视觉风格。 */
 :root {
   font-family: Inter, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
-  color: #263a32;
-  background: #f7f8f5;
+  color: var(--text);
+  background: var(--page-bg);
   font-synthesis: none;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale, 1));
   --green: #315b49;
   --muted: #839087;
   --line: #e5e9e2;
@@ -50,17 +50,17 @@ p {
   margin: 0;
 }
 h1 {
-  font-size: 30px;
+  font-size: calc(30px * var(--font-scale, 1));
   line-height: 1.4;
   font-weight: 650;
   letter-spacing: -0.9px;
 }
 h2 {
-  font-size: 18px;
+  font-size: calc(18px * var(--font-scale, 1));
   font-weight: 650;
 }
 h3 {
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale, 1));
   font-weight: 650;
 }
 h4 {
@@ -73,7 +73,7 @@ p {
   line-height: 1.8;
 }
 small {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   color: var(--muted);
   line-height: 1.8;
 }
@@ -84,8 +84,8 @@ svg {
 pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font-size: 12px;
-  background: #f7f8f5;
+  font-size: calc(12px * var(--font-scale, 1));
+  background: var(--page-bg);
   padding: 16px;
   border-radius: 8px;
   line-height: 1.8;
@@ -100,8 +100,8 @@ select,
 textarea {
   width: 100%;
   border: 1px solid #dfe5dd;
-  background: #fff;
-  color: #263a32;
+  background: var(--surface);
+  color: var(--text);
   padding: 11px 13px;
   border-radius: 8px;
   outline: none;
@@ -123,14 +123,14 @@ label {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   font-weight: 550;
   line-height: 1.6;
 }
 label em {
   font-style: normal;
   color: #a77831;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
 }
 button:focus-visible,
 a:focus-visible {
@@ -164,7 +164,7 @@ hr {
 }
 .secondary {
   border: 1px solid #dce3d9;
-  background: #fff;
+  background: var(--surface);
   color: #415a4a;
 }
 .secondary:hover {
@@ -173,7 +173,7 @@ hr {
 .small {
   min-height: 36px;
   padding: 8px 12px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .full {
   width: 100%;
@@ -198,7 +198,7 @@ hr {
   padding: 5px;
 }
 .quiet {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .link-button {
   font-weight: 650;
@@ -216,7 +216,7 @@ hr {
 }
 .muted {
   color: #859086;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   line-height: 1.9;
   margin: 12px 0 19px;
 }
@@ -226,7 +226,7 @@ hr {
 }
 .eyebrow {
   display: block;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   letter-spacing: 1.8px;
   font-weight: 650;
   color: #8a9b88;
@@ -255,7 +255,7 @@ hr {
   border-radius: 5px;
   background: #f0f3ed;
   color: #7a8a78;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   white-space: nowrap;
   font-weight: 500;
 }
@@ -283,11 +283,11 @@ hr {
   gap: 10px;
 }
 .wordmark b {
-  font-size: 23px;
+  font-size: calc(23px * var(--font-scale, 1));
   letter-spacing: 3px;
 }
 .wordmark > span:last-child {
-  font-size: 8px;
+  font-size: calc(8px * var(--font-scale, 1));
   letter-spacing: 1.7px;
   color: #9da99a;
   margin-left: 1px;
@@ -310,7 +310,7 @@ hr {
 .sidebar {
   width: 235px;
   flex-shrink: 0;
-  background: #f0f2eb;
+  background: var(--sidebar-bg);
   border-right: 1px solid #e2e7db;
   padding: 35px 21px 18px;
   display: flex;
@@ -322,7 +322,7 @@ hr {
   margin: 0 7px 42px;
 }
 .space-label {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   color: #9aa494;
   letter-spacing: 0.8px;
   margin: 0 11px 17px;
@@ -330,7 +330,7 @@ hr {
   justify-content: space-between;
 }
 .space-label span {
-  font-size: 8px;
+  font-size: calc(8px * var(--font-scale, 1));
 }
 .sidebar nav {
   display: flex;
@@ -346,7 +346,7 @@ hr {
   text-align: left;
   border-radius: 8px;
   color: #879380;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
 }
 .sidebar nav button.selected {
   background: #e1e9d8;
@@ -355,7 +355,7 @@ hr {
 }
 .sidebar nav button > span {
   margin-left: auto;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   background: #d1dfc7;
   border-radius: 4px;
   padding: 1px 6px;
@@ -371,7 +371,7 @@ hr {
   background: transparent;
   margin-top: 27px;
   padding: 12px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .sidebar-tip {
   margin: auto 10px 34px;
@@ -381,11 +381,11 @@ hr {
 .sidebar-tip p {
   margin: 13px 0;
   color: #8f9b82;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
   line-height: 2;
 }
 .sidebar-tip > span {
-  font-size: 8px;
+  font-size: calc(8px * var(--font-scale, 1));
   letter-spacing: 1.3px;
 }
 .user-block {
@@ -404,7 +404,7 @@ hr {
   background: #e0e7d7;
   color: #7e9272;
   border-radius: 50%;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .user-block div {
   flex: 1;
@@ -412,12 +412,12 @@ hr {
 }
 .user-block strong {
   display: block;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .user-block small {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale, 1));
 }
 .main-shell {
   margin-left: 235px;
@@ -434,12 +434,12 @@ hr {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff78;
+  background: var(--topbar-bg);
   gap: 12px;
 }
 .breadcrumb {
   color: #81907e;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
 }
 .breadcrumb span {
   margin: 0 12px;
@@ -454,7 +454,7 @@ hr {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   color: #8b9985;
 }
 .page {
@@ -476,11 +476,11 @@ hr {
 }
 .page-heading p {
   color: #899584;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   margin-top: 10px;
 }
 .page-heading > .primary {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   padding: 11px 15px;
 }
 .stats {
@@ -490,7 +490,7 @@ hr {
   margin-bottom: 35px;
 }
 .stats > div {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 19px 22px;
@@ -498,12 +498,12 @@ hr {
 }
 .stats span {
   display: block;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: #8c9785;
   margin-bottom: 7px;
 }
 .stats b {
-  font-size: 28px;
+  font-size: calc(28px * var(--font-scale, 1));
   font-weight: 500;
   color: #446044;
   letter-spacing: 1px;
@@ -533,10 +533,10 @@ hr {
   gap: 8px;
 }
 .section-heading h2 {
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale, 1));
 }
 .count {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   background: #e9eee3;
   border-radius: 5px;
   padding: 2px 6px;
@@ -549,7 +549,7 @@ hr {
   border: 1px solid #e0e6dc;
   border-radius: 7px;
   padding: 0 10px;
-  background: #fff;
+  background: var(--surface);
   gap: 7px;
   color: #99a391;
 }
@@ -557,7 +557,7 @@ hr {
   border: 0;
   padding: 8px 0;
   background: transparent;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   max-width: 145px;
   box-shadow: none;
 }
@@ -571,7 +571,7 @@ hr {
   background: transparent;
   padding: 6px 12px;
   border-radius: 5px;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   color: #8b9784;
 }
 .filters button.selected {
@@ -590,7 +590,7 @@ hr {
   gap: 15px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: white;
+  background: var(--surface);
   padding: 20px;
   text-align: left;
   width: 100%;
@@ -635,7 +635,7 @@ hr {
   flex: 1;
 }
 .task-meta {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   color: #94a08c;
   display: flex;
   gap: 8px;
@@ -643,11 +643,11 @@ hr {
   margin: 2px 0 7px;
 }
 .task-card h3 {
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale, 1));
   line-height: 1.7;
 }
 .task-card p {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: #919c89;
   margin-top: 5px;
   display: -webkit-box;
@@ -662,7 +662,7 @@ hr {
   flex-wrap: wrap;
   margin-top: 15px;
   color: #a1ab98;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale, 1));
 }
 .task-bottom > span {
   display: flex;
@@ -670,7 +670,7 @@ hr {
   align-items: center;
 }
 .task-bottom .badge {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale, 1));
   padding: 3px 7px;
 }
 .task-arrow {
@@ -698,7 +698,7 @@ hr {
   overflow: hidden;
 }
 .next-card .eyebrow {
-  font-size: 8px;
+  font-size: calc(8px * var(--font-scale, 1));
   letter-spacing: 1.2px;
 }
 .next-card > svg {
@@ -706,14 +706,14 @@ hr {
   color: #91a57c;
 }
 .next-card h2 {
-  font-size: 24px;
+  font-size: calc(24px * var(--font-scale, 1));
   color: #56704d;
   line-height: 1.7;
   letter-spacing: 0.5px;
   margin: 15px 0;
 }
 .next-card p {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: #8a9b7c;
   line-height: 2;
 }
@@ -725,7 +725,7 @@ hr {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   text-align: left;
   line-height: 1.7;
 }
@@ -733,7 +733,7 @@ hr {
   padding: 27px 6px 15px;
 }
 .how-card h3 {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   margin-bottom: 20px;
 }
 .how-card > div {
@@ -743,24 +743,24 @@ hr {
 }
 .how-card b {
   font-weight: 500;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   color: #a9b79b;
   line-height: 23px;
 }
 .how-card strong {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   font-weight: 500;
   display: block;
   color: #76876d;
 }
 .how-card small {
   display: block;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale, 1));
   color: #a0aa97;
   margin-top: 4px;
 }
 .aside-foot {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale, 1));
   color: #adb6a4;
   border-top: 1px solid var(--line);
   padding: 18px 7px;
@@ -770,7 +770,7 @@ hr {
   padding: 18px 39px;
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale, 1));
   color: #adb7a5;
 }
 .empty {
@@ -788,16 +788,16 @@ hr {
   background: #ffffff80;
 }
 .empty h3 {
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale, 1));
   color: #7a8d70;
 }
 .empty p {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   max-width: 350px;
   color: #98a28e;
 }
 .empty .secondary {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   margin-top: 5px;
 }
 .loading {
@@ -816,7 +816,7 @@ hr {
   color: #a08043;
   border-radius: 5px;
   padding: 6px 9px;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
 }
 .offline-banner {
   background: #fbf3df;
@@ -825,7 +825,7 @@ hr {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .toast {
   position: fixed;
@@ -842,7 +842,7 @@ hr {
   align-items: center;
   gap: 18px;
   z-index: 20;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   line-height: 1.8;
 }
 .toast .icon-button {
@@ -869,7 +869,7 @@ hr {
   margin-bottom: 25px;
 }
 .modal h2 {
-  font-size: 19px;
+  font-size: calc(19px * var(--font-scale, 1));
 }
 .modal footer {
   display: flex;
@@ -884,7 +884,7 @@ hr {
 }
 .error {
   color: #ad5546;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   line-height: 1.8;
   background: #fff0eb;
   border-radius: 6px;
@@ -896,7 +896,7 @@ hr {
   gap: 7px;
   background: transparent;
   color: #8c9b81;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   padding: 0;
   margin-bottom: 20px;
 }
@@ -904,10 +904,10 @@ hr {
   margin-bottom: 24px;
 }
 .workspace-heading h1 {
-  font-size: 26px;
+  font-size: calc(26px * var(--font-scale, 1));
 }
 .workspace-heading .task-meta {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
 }
 .workspace-toolbar {
   display: flex;
@@ -916,12 +916,12 @@ hr {
   gap: 15px;
   border: 1px solid var(--line);
   border-radius: 9px;
-  background: #fff;
+  background: var(--surface);
   padding: 13px 16px;
   margin-bottom: 22px;
 }
 .sync-indicator {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   display: flex;
   align-items: center;
   gap: 7px;
@@ -942,7 +942,7 @@ hr {
   align-items: center;
   color: #93a087;
   background: transparent;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   white-space: nowrap;
 }
 .tabs button.selected {
@@ -950,7 +950,7 @@ hr {
   border-color: #77986b;
 }
 .tabs button > span {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   background: #eaf0e1;
   border-radius: 4px;
   padding: 1px 5px;
@@ -964,7 +964,7 @@ hr {
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
   min-width: 0;
 }
 .panel > h2 {
@@ -979,7 +979,7 @@ hr {
   color: #8a9c7d;
   padding: 11px 14px;
   border-radius: 7px;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
 }
 .plugin-fields {
   border-top: 1px solid var(--line);
@@ -987,7 +987,7 @@ hr {
   padding-top: 25px;
 }
 .plugin-fields h3 {
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
 }
 .step {
   flex-direction: row;
@@ -995,7 +995,7 @@ hr {
   margin: 18px 0;
   gap: 9px;
   color: #87967e;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .step input {
   width: 15px;
@@ -1033,7 +1033,7 @@ hr {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: #829575;
   padding: 11px 0;
   border-bottom: 1px solid #eff2ea;
@@ -1044,7 +1044,7 @@ hr {
 }
 .resource small {
   display: block;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale, 1));
 }
 .resume-sections {
   display: grid;
@@ -1058,11 +1058,11 @@ hr {
   border-radius: 7px;
 }
 .resume-sections span {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   color: #93a181;
 }
 .resume-sections p {
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale, 1));
   margin-top: 9px;
   color: #526e44;
   white-space: pre-wrap;
@@ -1080,12 +1080,12 @@ hr {
 }
 .history-item summary {
   cursor: pointer;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   color: #6c8460;
   line-height: 1.8;
 }
 .history-item summary > span + span {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: #98a68c;
   display: block;
   margin: 7px 0 0 15px;
@@ -1097,20 +1097,20 @@ hr {
   padding: 23px 0;
 }
 .snapshot-grid p {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   margin-top: 5px;
 }
 .session-row {
   border-bottom: 1px solid var(--line);
   padding: 16px 0;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: #7e9071;
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 .session-row small {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
 }
 .conflict {
   border: 1px solid #e3c88f;
@@ -1119,7 +1119,7 @@ hr {
   padding: 20px;
   margin-bottom: 20px;
   color: #9a7b3e;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
 }
 .conflict p,
 .conflict details {
@@ -1140,21 +1140,21 @@ hr {
   padding: 22px 0;
 }
 .plugin-row strong {
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale, 1));
 }
 .plugin-row p {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   color: #8f9d83;
   margin: 7px 0;
 }
 .plugin-row small {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
 }
 .settings-grid .panel h2 {
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale, 1));
 }
 .settings-grid .panel h3 {
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale, 1));
 }
 /* 登录页与学习工作台共用色板，不依赖外部字体或图片网络。 */
 .login-layout {
@@ -1163,13 +1163,13 @@ hr {
   min-height: 100vh;
 }
 .login-story {
-  background: #edf1e5;
+  background: var(--sidebar-bg);
   padding: 42px 55px;
   display: flex;
   flex-direction: column;
 }
 .login-story > small {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   margin-top: 50px;
 }
 .login-copy {
@@ -1178,14 +1178,14 @@ hr {
   width: 100%;
 }
 .login-copy h1 {
-  font-size: 38px;
+  font-size: calc(38px * var(--font-scale, 1));
   color: #4c6842;
   letter-spacing: 1px;
   margin: 17px 0 20px;
   line-height: 1.6;
 }
 .login-copy > p {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   color: #8e9e80;
   line-height: 2;
 }
@@ -1199,7 +1199,7 @@ hr {
   box-shadow: 5px 7px 0 #e1e7d7;
 }
 .paper-preview h3 {
-  font-size: 17px;
+  font-size: calc(17px * var(--font-scale, 1));
   color: #718662;
   margin: 16px 0 22px;
 }
@@ -1207,13 +1207,13 @@ hr {
   display: flex;
   align-items: center;
   gap: 13px;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale, 1));
   color: #91a180;
   margin: 15px 0;
 }
 .paper-mark {
   display: block;
-  font-size: 8px;
+  font-size: calc(8px * var(--font-scale, 1));
   letter-spacing: 1px;
   color: #bdc7b0;
   border-top: 1px solid #e8eddf;
@@ -1226,11 +1226,11 @@ hr {
   margin: 70px auto;
 }
 .login-form h2 {
-  font-size: 24px;
+  font-size: calc(24px * var(--font-scale, 1));
   margin: 14px 0;
 }
 .login-form > p {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale, 1));
   color: #8f9c85;
 }
 .login-form form {
@@ -1250,7 +1250,7 @@ hr {
   border-top: 1px solid var(--line);
   padding-top: 22px;
   color: #a5b09b;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale, 1));
   line-height: 2;
 }
 .workspace-fieldset {
@@ -1271,7 +1271,7 @@ hr {
     padding: 25px;
   }
   .task-card h3 {
-    font-size: 16px;
+    font-size: calc(16px * var(--font-scale, 1));
   }
 }
 @media (max-width: 1199px) {
@@ -1302,7 +1302,7 @@ hr {
     padding: 20px;
   }
   .page-heading h1 {
-    font-size: 26px;
+    font-size: calc(26px * var(--font-scale, 1));
   }
   .wordmark > span:last-child {
     display: none;
@@ -1314,7 +1314,7 @@ hr {
     padding: 35px;
   }
   .login-copy h1 {
-    font-size: 31px;
+    font-size: calc(31px * var(--font-scale, 1));
   }
   .stats {
     gap: 13px;
@@ -1334,7 +1334,7 @@ hr {
     gap: 22px;
   }
   .next-card h2 {
-    font-size: 20px;
+    font-size: calc(20px * var(--font-scale, 1));
   }
   .next-card > svg {
     display: none;
@@ -1389,16 +1389,16 @@ hr {
     padding: 0 19px;
   }
   .breadcrumb {
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
   }
   .connection {
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
   }
   .topbar-actions {
     gap: 8px;
   }
   .pending-badge {
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
     padding: 5px;
   }
   .page {
@@ -1410,12 +1410,12 @@ hr {
     margin-bottom: 23px;
   }
   .page-heading h1 {
-    font-size: 23px;
+    font-size: calc(23px * var(--font-scale, 1));
     margin-top: 9px;
     letter-spacing: -0.7px;
   }
   .page-heading p {
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
     line-height: 1.9;
     max-width: 280px;
   }
@@ -1430,7 +1430,7 @@ hr {
     height: 18px;
   }
   .eyebrow {
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
     letter-spacing: 1.3px;
   }
   .stats {
@@ -1441,10 +1441,10 @@ hr {
     padding: 15px 13px;
   }
   .stats span {
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
   }
   .stats b {
-    font-size: 23px;
+    font-size: calc(23px * var(--font-scale, 1));
   }
   .stats .dot {
     width: 5px;
@@ -1453,14 +1453,14 @@ hr {
     right: 12px;
   }
   .section-heading h2 {
-    font-size: 15px;
+    font-size: calc(15px * var(--font-scale, 1));
   }
   .search {
     padding: 0 8px;
     max-width: 155px;
   }
   .search input {
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
     width: 100%;
     min-width: 0;
   }
@@ -1470,7 +1470,7 @@ hr {
   }
   .filters button {
     padding: 6px 9px;
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
   }
   .task-card {
     padding: 16px 13px;
@@ -1484,23 +1484,23 @@ hr {
     width: 19px;
   }
   .task-card h3 {
-    font-size: 13px;
+    font-size: calc(13px * var(--font-scale, 1));
   }
   .task-meta {
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
   }
   .task-card p {
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
   }
   .task-arrow {
     width: 15px;
   }
   .task-bottom {
     gap: 8px;
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
   }
   .task-bottom .badge {
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
   }
   .board-aside {
     grid-template-columns: 1fr;
@@ -1514,14 +1514,14 @@ hr {
   }
   .next-card h2 {
     margin: 12px 0;
-    font-size: 20px;
+    font-size: calc(20px * var(--font-scale, 1));
   }
   .next-card p {
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
   }
   .page-footer {
     padding: 17px 18px;
-    font-size: 8px;
+    font-size: calc(8px * var(--font-scale, 1));
   }
   .page-footer span:last-child {
     display: none;
@@ -1547,7 +1547,7 @@ hr {
     gap: 5px;
     background: transparent;
     color: #a0ad92;
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale, 1));
     flex: 1;
   }
   .mobile-nav button.selected {
@@ -1557,24 +1557,24 @@ hr {
     left: 50%;
     bottom: 80px;
     width: calc(100% - 30px);
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
   }
   .modal {
     padding: 21px;
     max-height: 88dvh;
   }
   .modal h2 {
-    font-size: 17px;
+    font-size: calc(17px * var(--font-scale, 1));
   }
   .form-row {
     grid-template-columns: 1fr;
   }
   .offline-banner {
     padding: 10px 18px;
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
   }
   .workspace-heading h1 {
-    font-size: 23px;
+    font-size: calc(23px * var(--font-scale, 1));
   }
   .workspace-heading > .badge {
     margin-top: 25px;
@@ -1590,16 +1590,16 @@ hr {
   }
   .workspace-toolbar .small {
     padding: 8px 10px;
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
   }
   .sync-indicator {
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
   }
   .tabs {
     gap: 22px;
   }
   .tabs button {
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
   }
   .panel {
     padding: 19px;
@@ -1612,14 +1612,14 @@ hr {
     width: 100%;
   }
   .panel h2 {
-    font-size: 16px;
+    font-size: calc(16px * var(--font-scale, 1));
   }
   .resume-sections {
     grid-template-columns: 1fr;
     gap: 12px;
   }
   .resume-sections p {
-    font-size: 13px;
+    font-size: calc(13px * var(--font-scale, 1));
   }
   .snapshot-grid {
     grid-template-columns: 1fr;
@@ -1641,7 +1641,7 @@ hr {
     max-width: none;
   }
   .login-copy h1 {
-    font-size: 28px;
+    font-size: calc(28px * var(--font-scale, 1));
     line-height: 1.5;
     margin: 12px 0;
   }
@@ -1649,7 +1649,7 @@ hr {
     display: none;
   }
   .login-copy > p {
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale, 1));
   }
   .paper-preview,
   .login-story > small {
@@ -1661,13 +1661,13 @@ hr {
     max-width: 420px;
   }
   .login-form h2 {
-    font-size: 22px;
+    font-size: calc(22px * var(--font-scale, 1));
   }
   .login-form form {
     margin-top: 26px;
   }
   .help-note {
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale, 1));
   }
   .loading {
     padding: 65px 20px;

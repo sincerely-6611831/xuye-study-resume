@@ -81,6 +81,7 @@ class Pause(Draft):
 
 class AIRequest(Model):
     provider: Literal["manual_lianxiaoli", "http_provider"] = "manual_lianxiaoli"
+    profile_id: str | None = None
 
 
 class AIImport(Model):

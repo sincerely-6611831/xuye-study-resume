@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./styles.css";
+import "./settings/settings.css";
 
 createRoot(document.getElementById("root")!).render(<App />);
 // HTTPS或localhost支持service worker；普通HTTP局域网仍可使用核心网页。

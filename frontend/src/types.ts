@@ -68,6 +68,8 @@ export interface Card {
   created_at: string;
 }
 export interface AIJob {
+  profile_name?: string | null;
+  model_name?: string | null;
   id: string;
   checkpoint_id: string;
   provider: string;
