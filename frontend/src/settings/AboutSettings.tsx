@@ -1,6 +1,5 @@
 import {
   Cpu,
-  BadgeCheck,
   GraduationCap,
   Users,
   UserRound,
@@ -18,10 +17,6 @@ export function AboutSettings() {
         <span className="eyebrow">SILICON AWAKENING</span>
         <h2>硅基觉醒</h2>
         <p className="about-english">Silicon Awakening</p>
-        <span className="approval-badge">
-          <BadgeCheck size={17} />
-          参赛信息已通过审核
-        </span>
         <p className="about-intro">
           我们是来自大连理工大学的硅基觉醒团队。
           <br />

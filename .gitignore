@@ -10,3 +10,4 @@ __pycache__/
 *.log
 *.tsbuildinfo
 test-results/
+.learnbuddy/
