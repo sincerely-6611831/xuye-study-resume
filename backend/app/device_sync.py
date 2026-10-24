@@ -139,9 +139,26 @@ class FileData(SyncModel):
     data: str
 
 
+class PluginField(SyncModel):
+    key: str = Field(pattern=r"^[a-z][a-z0-9_]{0,39}$")
+    label: str = Field(min_length=1, max_length=60)
+    hint: str = Field(max_length=200)
+    type: Literal["textarea"]
+
+
+class SyncPlugin(SyncModel):
+    id: str = Field(pattern=r"^custom-[a-zA-Z0-9-]{8,80}$")
+    version: Literal["1.0.0"]
+    name: str = Field(min_length=1, max_length=60)
+    description: str = Field(min_length=1, max_length=300)
+    warmup: str = Field(min_length=1, max_length=300)
+    fields: list[PluginField] = Field(max_length=12)
+
+
 class Bundle(SyncModel):
     detail: Detail
     files: list[FileData] = Field(max_length=100)
+    plugin: SyncPlugin | None = None
 
 
 class Push(SyncModel):
@@ -166,6 +183,15 @@ def validate_bundle(task_id, bundle):
     d, task = bundle.detail, bundle.detail.task
     if task.id != task_id or not task.title.strip():
         reject()
+    supplied_plugin = bundle.plugin.model_dump() if bundle.plugin else None
+    if supplied_plugin:
+        if supplied_plugin["id"] != task.plugin_id:
+            reject("插件与任务不匹配")
+        keys = [field["key"] for field in supplied_plugin["fields"]]
+        if len(keys) != len(set(keys)) or any(
+            not supplied_plugin[name].strip() for name in ("name", "description", "warmup")
+        ):
+            reject("自定义插件字段无效")
     checkpoints, sessions = unique(d.checkpoints), unique(d.sessions)
     jobs, resources = unique(d.jobs), unique(d.resources)
     unique(task.steps)
@@ -193,7 +219,7 @@ def validate_bundle(task_id, bundle):
         if cp.plugin_id != task.plugin_id:
             reject()
     for payload in [task.draft, *(cp.payload for cp in d.checkpoints)]:
-        validate_payload(task.plugin_id, payload.model_dump())
+        validate_payload(task.plugin_id, payload.model_dump(), supplied_plugin)
         if not set(payload.resource_ids) <= resources.keys():
             reject()
     for job in d.jobs:

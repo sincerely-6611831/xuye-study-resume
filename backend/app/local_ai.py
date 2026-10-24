@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Uplo
 from pydantic import Field, ValidationError, field_validator
 
 from .auth import current_user
+from .device_sync import SyncPlugin
 from .model_client import send_chat, send_models, send_transcription
 from .plugins import get_plugin
 from .schemas import Model
@@ -66,6 +67,7 @@ class TaskContext(Model):
 class SummaryRequest(Summarize):
     config: Config
     task: TaskContext
+    plugin: SyncPlugin | None = None
 
 
 def resolve(config, request, user):
@@ -197,7 +199,14 @@ def transcribe(
 
 @router.post("/summarize")
 def summarize(body: SummaryRequest, request: Request, user=Depends(current_user)):
-    plugin = get_plugin(body.task.plugin_id)
+    if body.task.plugin_id.startswith("custom-"):
+        if not body.plugin or body.plugin.id != body.task.plugin_id:
+            raise HTTPException(422, "自定义插件定义缺失或不匹配")
+        plugin = body.plugin.model_dump()
+    else:
+        if body.plugin:
+            raise HTTPException(422, "内置插件不需要自定义定义")
+        plugin = get_plugin(body.task.plugin_id)
     config = resolve(body.config, request, user)
     prompt = summary_prompt(body.task.model_dump(), body.transcript, plugin)
     try:

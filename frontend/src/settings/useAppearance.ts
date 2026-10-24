@@ -12,6 +12,14 @@ import {
   createAppearanceCoordinator,
 } from "./appearance.mjs";
 import type { Appearance, AppSettings } from "./types";
+import { listFonts } from "../local/fonts.mjs";
+
+const fontStacks: Record<string, string> = {
+  system: 'Inter, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif',
+  song: '"SimSun", "Songti SC", "Noto Serif CJK SC", serif',
+  kai: '"KaiTi", "Kaiti SC", "STKaiti", serif',
+  hei: '"SimHei", "Heiti SC", "Microsoft YaHei", sans-serif',
+};
 
 function cached(userId?: string): Appearance {
   try {
@@ -58,12 +66,23 @@ export function useAppearance(userId?: string) {
       coordinator.invalidate();
     };
   }, [userId, coordinator]);
+  useEffect(() => {
+    const reload = () => {
+      coordinator
+        .load(async () => (await api<AppSettings>("/settings")).appearance)
+        .catch(() => {});
+    };
+    window.addEventListener("study-personalization-restored", reload);
+    return () =>
+      window.removeEventListener("study-personalization-restored", reload);
+  }, [coordinator]);
   useLayoutEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
       const attrs = appearanceAttributes(appearance, media.matches);
       const root = document.documentElement;
       root.dataset.theme = attrs.theme;
+      root.dataset.palette = attrs.palette;
       root.dataset.accent = attrs.accent;
       root.dataset.density = attrs.density;
       root.style.setProperty("--font-scale", attrs.fontScale || "1");
@@ -72,5 +91,39 @@ export function useAppearance(userId?: string) {
     media.addEventListener("change", apply);
     return () => media.removeEventListener("change", apply);
   }, [appearance]);
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty(
+      "--app-font",
+      fontStacks[appearance.font_family] || fontStacks.system,
+    );
+    if (appearance.font_family !== "custom" || !appearance.font_id || !userId)
+      return;
+    let active = true;
+    let loadedFace: FontFace | null = null;
+    listFonts(userId)
+      .then(async (fonts: { id: string; blob: Blob }[]) => {
+        const item = fonts.find((font) => font.id === appearance.font_id);
+        if (!item) return;
+        const family = `XuYeFont${appearance.font_id.replace(/[^a-z0-9]/gi, "")}`;
+        const face = new FontFace(family, await item.blob.arrayBuffer());
+        await face.load();
+        if (active) {
+          document.fonts.add(face);
+          loadedFace = face;
+          root.style.setProperty(
+            "--app-font",
+            `"${family}", system-ui, sans-serif`,
+          );
+        }
+      })
+      .catch(() => {
+        /* 字体损坏时保留系统字体，设置页仍可选择其他字体。 */
+      });
+    return () => {
+      active = false;
+      if (loadedFace) document.fonts.delete(loadedFace);
+    };
+  }, [appearance.font_family, appearance.font_id, userId]);
   return { appearance, changeAppearance };
 }

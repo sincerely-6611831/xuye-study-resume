@@ -3,9 +3,7 @@ import {
   ArrowDownToLine,
   ArrowUpFromLine,
   Database,
-  Download,
   RefreshCw,
-  Upload,
 } from "lucide-react";
 import {
   listLocalTasks,
@@ -13,7 +11,6 @@ import {
   pullTask,
   pushTask,
 } from "../local/sync.mjs";
-import { downloadBackup, restoreBackup } from "../local/backup.mjs";
 
 type LocalTask = {
   task_id: string;
@@ -170,32 +167,16 @@ export function SyncSettings({
       setBusy(false);
     }
   }
-  async function backup(file?: File) {
-    setBusy(true);
-    try {
-      if (file) {
-        const result = await restoreBackup(file);
-        await refreshLocal();
-        changed();
-        await readStorage().catch(() => {});
-        notify(`已恢复${result.imported}个任务副本，原有记录保留。`);
-      } else await downloadBackup("zip");
-    } catch (e) {
-      setMessage((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
   return (
     <section className="panel sync-settings">
       <div className="section-heading">
         <div>
           <h2>
             <Database size={20} />
-            本机保存与手动同步
+            自建服务器 · 手动发送与接收
           </h2>
           <p className="muted">
-            任务保存在当前设备的浏览器。选择任务并发送后，其他设备才能接收；附件与学习记录一同同步。
+            任务先保存在当前设备。选择任务发送到你部署的服务器后，其他设备才能接收；附件与学习记录一同传递。
           </p>
         </div>
         <button
@@ -204,7 +185,7 @@ export function SyncSettings({
           onClick={fetchRemote}
         >
           <RefreshCw size={15} />
-          获取远端任务
+          获取服务器任务
         </button>
       </div>
       <div className="sync-task-columns">
@@ -252,15 +233,15 @@ export function SyncSettings({
         </fieldset>
         <fieldset className="sync-task-list" disabled={busy}>
           <legend>
-            远端任务 · {remoteLoaded ? remoteTasks.length : "尚未获取"}
+            服务器任务 · {remoteLoaded ? remoteTasks.length : "尚未获取"}
           </legend>
           {!remoteLoaded && (
             <p className="muted">
-              点击“获取远端任务”连接当前网关。打开此页不会自动连接。
+              点击“获取服务器任务”读取当前自建服务器。打开此页不会自动连接。
             </p>
           )}
           {remoteLoaded && !remoteTasks.length && (
-            <p className="muted">当前账号的远端还没有同步任务。</p>
+            <p className="muted">当前账号的服务器中还没有同步任务。</p>
           )}
           {remoteTasks.map((task) => {
             const local = localTasks.find(
@@ -302,7 +283,7 @@ export function SyncSettings({
         </fieldset>
       </div>
       <p className="muted">
-        接收远端时，如果本机任务有未发送修改，会先保存完整副本。发送遇到版本冲突会停止覆盖该任务，请获取远端后接收并比较副本。
+        接收服务器任务时，如果本机任务有未发送修改，会先保存完整副本。发送遇到版本冲突会停止覆盖该任务，请获取服务器版本后接收并比较副本。
       </p>
       <div className="sync-storage">
         <p>
@@ -330,30 +311,6 @@ export function SyncSettings({
           >
             申请持久存储
           </button>
-          <button
-            className="secondary small"
-            disabled={busy}
-            onClick={() => backup()}
-          >
-            <Download size={15} />
-            本机ZIP备份
-          </button>
-          <label
-            className={`secondary small file-button${busy ? " sync-disabled" : ""}`}
-          >
-            <Upload size={15} />
-            恢复ZIP副本
-            <input
-              type="file"
-              accept=".zip"
-              disabled={busy}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) void backup(file);
-                e.target.value = "";
-              }}
-            />
-          </label>
         </div>
       </div>
       {message && (

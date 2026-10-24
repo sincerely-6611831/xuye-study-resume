@@ -38,9 +38,10 @@ export function ModelSettings({
   onUpdated: (s: AppSettings) => void;
   notify: (s: string) => void;
 }) {
-  const androidLocal = (
-    window as Window & { XuYeAndroid?: { isEmbedded?: () => boolean } }
-  ).XuYeAndroid?.isEmbedded?.() ?? false;
+  const androidLocal =
+    (
+      window as Window & { XuYeAndroid?: { isEmbedded?: () => boolean } }
+    ).XuYeAndroid?.isEmbedded?.() ?? false;
   const [editing, setEditing] = useState<ModelProfile | "new" | null>(null);
   const [removing, setRemoving] = useState<ModelProfile | null>(null);
   const [busy, setBusy] = useState(false);
@@ -182,7 +183,8 @@ export function ModelSettings({
           <div>
             <h2>默认AI方式</h2>
             <p className="muted">
-              在续学卡中生成建议时，优先使用这里选中的方式。
+              续学卡与首页 AI
+              学习总结会使用这里选中的方式。首页总结需要选择已配置的模型。
             </p>
           </div>
           <span className="badge">按账号保存</span>
@@ -211,8 +213,8 @@ export function ModelSettings({
         <div className="help-note">
           <KeyRound size={15} />{" "}
           {androidLocal
-            ? "配置保存在这台设备，API密钥由 Android 系统密钥库加密，保存后不回显；学习备份不包含模型配置与密钥。"
-            : "配置保存在本机，API密钥由当前网关加密封装，保存后不回显；学习备份和任务同步不包含模型配置与密钥。"}
+            ? "配置保存在这台设备，API密钥由 Android 系统密钥库加密，保存后不回显；完整ZIP带走接口配置，不带走密钥。"
+            : "配置保存在本机，API密钥由当前网关加密封装，保存后不回显；完整ZIP带走接口配置，不带走密钥。"}
         </div>
       </section>
       <section className="panel">

@@ -157,6 +157,28 @@ def test_sync_roundtrip_cas_history_and_legacy_separation(sync_client):
     assert json.loads(rows[0]["bundle"]) == first
 
 
+def test_sync_accepts_declarative_custom_plugin_and_rejects_unknown_fields(sync_client):
+    value = bundle()
+    plugin_id = "custom-12345678"
+    value["plugin"] = {
+        "id": plugin_id,
+        "version": "1.0.0",
+        "name": "外语听力",
+        "description": "记录听不懂的句子",
+        "warmup": "上次卡在哪一句？",
+        "fields": [{"key": "sentence", "label": "关键句", "hint": "原句", "type": "textarea"}],
+    }
+    value["detail"]["task"]["plugin_id"] = plugin_id
+    value["detail"]["task"]["draft"]["domain_data"] = {"sentence": "sample"}
+    value["detail"]["checkpoints"][0]["plugin_id"] = plugin_id
+    value["detail"]["checkpoints"][0]["payload"]["domain_data"] = {"sentence": "sample"}
+    assert push(sync_client, value).status_code == 200
+    assert sync_client.get("/api/device-sync/t1").json()["bundle"]["plugin"] == value["plugin"]
+    bad = copy.deepcopy(value)
+    bad["detail"]["task"]["draft"]["domain_data"] = {"unexpected": "x"}
+    assert push(sync_client, bad, 1).status_code == 422
+
+
 def test_sync_is_account_isolated_even_with_same_task_id(sync_client):
     c = sync_client
     assert push(c, bundle()).status_code == 200

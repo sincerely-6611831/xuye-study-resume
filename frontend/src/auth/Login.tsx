@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowUpRight,
-  BookOpen,
   Bookmark,
-  Layers,
   ArrowRight,
+  CornerDownRight,
+  ShieldCheck,
 } from "lucide-react";
 import { post } from "../api/client";
 import type { User } from "../types";
@@ -13,6 +14,7 @@ export function Login({ onLogin }: { onLogin: (u: User) => void }) {
   const [register, setRegister] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const reduceMotion = useReducedMotion();
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
@@ -34,95 +36,150 @@ export function Login({ onLogin }: { onLogin: (u: User) => void }) {
   return (
     <main className="login-layout">
       <section className="login-story">
-        <div className="wordmark">
-          <span className="brand-icon">
-            <Bookmark size={23} />
-          </span>
-          <b>续页</b>
-          <span>RESUME</span>
+        <div className="login-story-top">
+          <div className="wordmark">
+            <span className="brand-icon">
+              <Bookmark size={23} />
+            </span>
+            <b>续页</b>
+            <span>RESUME</span>
+          </div>
+          <span className="login-edition">一个给学习留书签的地方</span>
         </div>
-        <div className="login-copy">
-          <span className="eyebrow">给每一次暂停，留一个起点</span>
+        <motion.div
+          className="login-copy"
+          initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.42, ease: "easeOut" }}
+        >
+          <span className="eyebrow">PAUSE IS PART OF PROGRESS</span>
           <h1>
-            思路暂时停下，
+            停下来，
             <br />
-            学习依然接得上。
+            也能接得上。
           </h1>
           <p>
-            记住做到哪里、正在想什么，以及下一步。
-            <br />
-            重新打开时，从熟悉的地方继续。
+            把此刻的思路留在这一页。下次回来，
+            <br className="desktop-only" />
+            不必从头想起，只需往前一步。
           </p>
-          <div className="paper-preview">
-            <span className="eyebrow">你的下一张续学卡</span>
-            <h3>留住的，不只是进度。</h3>
-            <div>
-              <Layers size={19} /> 已完成的步骤与尝试
+          {/* 示例只说明续学卡的结构，不读取或展示尚未登录用户的学习记录。 */}
+          <motion.div
+            className="paper-preview"
+            initial={reduceMotion ? false : { opacity: 0, rotate: -3, y: 18 }}
+            animate={
+              reduceMotion
+                ? { opacity: 1, rotate: 0, y: 0 }
+                : { opacity: 1, rotate: [0, -0.7, 0], y: [0, -5, 0] }
+            }
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : {
+                    duration: 5.5,
+                    delay: 0.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }
+            }
+          >
+            <div className="paper-preview-top">
+              <span>示例续学卡</span>
+              <span>01 / CONTINUE</span>
             </div>
-            <div>
-              <BookOpen size={19} /> 当时的想法与疑问
+            <div className="paper-preview-title">
+              <span>高等数学 · 定积分</span>
+              <h3>换元积分，例题 04</h3>
             </div>
-            <div>
-              <ArrowUpRight size={19} /> 一个清楚的下一步
+            <div className="paper-preview-trail">
+              <div>
+                <span className="trail-dot done" />
+                <p>已完成：整理两种常见换元方法</p>
+              </div>
+              <div>
+                <span className="trail-dot current" />
+                <p>停在：第二种方法的适用条件</p>
+              </div>
             </div>
-            <span className="paper-mark">继续发生 / KEEP GOING</span>
-          </div>
-        </div>
-        <small>学习断片续接器 · 第一版</small>
+            <div className="paper-preview-next">
+              <CornerDownRight size={18} />
+              <span>下一步</span>
+              <strong>先写出换元关系，再回到题目。</strong>
+            </div>
+            <ArrowUpRight className="paper-preview-corner" size={22} />
+          </motion.div>
+        </motion.div>
+        <small>把每一段学习，接成自己的路。</small>
       </section>
       <section className="login-form">
-        <span className="eyebrow">WELCOME BACK</span>
-        <h2>{register ? "建立你的学习空间" : "回到你的学习空间"}</h2>
-        <p>在不同设备登录同一账号，接着上次继续。</p>
-        <form onSubmit={submit}>
-          <label>
-            用户名
-            <input
-              name="username"
-              autoComplete="username"
-              required
-              minLength={2}
-              maxLength={40}
-              placeholder="字母、数字、中文或下划线"
-            />
-          </label>
-          <label>
-            密码
-            <input
-              name="password"
-              type="password"
-              autoComplete={register ? "new-password" : "current-password"}
-              required
-              minLength={8}
-              maxLength={128}
-              placeholder="至少8个字符"
-            />
-          </label>
-          {error && (
-            <p className="error" role="alert">
-              {error}
+        <motion.div
+          className="login-form-content"
+          initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.42, delay: 0.08, ease: "easeOut" }}
+        >
+          <div className="login-form-heading">
+            <span className="eyebrow">YOUR SPACE · YOUR PACE</span>
+            <h2>{register ? "从这里，开始记录。" : "欢迎回来。"}</h2>
+            <p>
+              {register
+                ? "创建一个空间，为下一次继续做好准备。"
+                : "打开自己的学习空间，接着上次的思路。"}
             </p>
-          )}
-          <button className="primary full" disabled={busy}>
-            {busy ? "请稍候…" : register ? "创建账号并进入" : "登录"}
-            <ArrowRight size={17} />
-          </button>
-        </form>
-        <p className="switch-auth">
-          {register ? "已经有账号？" : "第一次使用？"}
-          <button
-            className="link-button"
-            onClick={() => {
-              setRegister(!register);
-              setError("");
-            }}
-          >
-            {register ? "去登录" : "创建账号"}
-          </button>
-        </p>
-        <div className="help-note">
-          首次使用请创建账号。记录归属于你的账号；本机草稿会在同步后出现在其他设备上。
-        </div>
+          </div>
+          <form onSubmit={submit} aria-busy={busy}>
+            <label>
+              用户名
+              <input
+                name="username"
+                autoComplete="username"
+                required
+                minLength={2}
+                maxLength={40}
+                placeholder="字母、数字、中文或下划线"
+              />
+            </label>
+            <label>
+              密码
+              <input
+                name="password"
+                type="password"
+                autoComplete={register ? "new-password" : "current-password"}
+                required
+                minLength={8}
+                maxLength={128}
+                placeholder="至少8个字符"
+              />
+            </label>
+            {error && (
+              <p className="error" role="alert">
+                {error}
+              </p>
+            )}
+            <button className="primary full" disabled={busy}>
+              {busy ? "请稍候…" : register ? "创建账号并进入" : "登录"}
+              <ArrowRight size={17} />
+            </button>
+          </form>
+          <p className="switch-auth">
+            {register ? "已经有账号？" : "第一次使用？"}
+            <button
+              className="link-button"
+              onClick={() => {
+                setRegister(!register);
+                setError("");
+              }}
+            >
+              {register ? "去登录" : "创建账号"}
+            </button>
+          </p>
+          <div className="login-privacy">
+            <ShieldCheck size={18} />
+            <span>
+              学习记录优先保存在本机。跨设备可用自建服务器或完整 ZIP。
+            </span>
+          </div>
+        </motion.div>
       </section>
     </main>
   );

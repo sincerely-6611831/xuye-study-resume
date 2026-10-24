@@ -1,8 +1,11 @@
 /** 设置模块的接口类型。API密钥只有新输入的表单值，服务端列表不会返回密钥。 */
 export interface Appearance {
-  theme: "light" | "dark" | "system";
-  accent: "sage" | "blue" | "violet";
+  theme: "light" | "dark" | "system" | "paper" | "midnight";
+  accent: "sage" | "blue" | "violet" | "amber" | "rose" | "teal";
   font_size: "small" | "medium" | "large";
+  font_scale: number;
+  font_family: "system" | "song" | "kai" | "hei" | "custom";
+  font_id: string;
   density: "comfortable" | "compact";
 }
 export interface ModelProfile {

@@ -52,13 +52,13 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(32, 48, 32, 24);
         TextView hint = new TextView(this);
-        hint.setText("可选：连接电脑网关以使用远端账号、AI 与手动同步。例如 http://192.168.1.10:8000。本机任务可在无电脑时使用。");
+        hint.setText("连接你自行部署的续页服务器，使用服务器账号手动发送和接收任务。跨公网请使用 HTTPS；当前本机任务不会自动搬迁，可先导出完整 ZIP 再在服务器空间导入。");
         EditText input = new EditText(this);
         input.setSingleLine(true);
-        input.setHint("http://电脑IP:8000");
+        input.setHint("https://你的续页服务器地址");
         input.setText(getPreferences(MODE_PRIVATE).getString("gateway", ""));
         Button button = new Button(this);
-        button.setText("连接电脑");
+        button.setText("连接服务器");
         button.setOnClickListener(v -> {
             String address = input.getText().toString().trim();
             try {
@@ -134,7 +134,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         LinearLayout toolbar = new LinearLayout(this);
         Button local = new Button(this); local.setText("本机"); local.setOnClickListener(v -> openBundled());
-        Button remote = new Button(this); remote.setText("连接电脑"); remote.setOnClickListener(v -> showSetup());
+        Button remote = new Button(this); remote.setText("连接服务器"); remote.setOnClickListener(v -> showSetup());
         toolbar.addView(local, new LinearLayout.LayoutParams(0, 48, 1));
         toolbar.addView(remote, new LinearLayout.LayoutParams(0, 48, 1));
         root.addView(toolbar);
@@ -190,6 +190,10 @@ public class MainActivity extends Activity {
         private final Context context;
         OverviewBridge(MainActivity activity) { this.activity = activity; this.context = activity.getApplicationContext(); }
         @JavascriptInterface public boolean isEmbedded() { return activity.localMode; }
+        @JavascriptInterface public void openServerSetup() {
+            // 仅本机内置页面能打开切换入口；实际连接仍需用户填写完整地址。
+            if (activity.localMode) activity.runOnUiThread(activity::showSetup);
+        }
         @JavascriptInterface public void requestAi(String id, String path, String body) {
             if (!activity.localMode || id.length() > 100 || body.length() > 30 * 1024 * 1024) return;
             new Thread(() -> {

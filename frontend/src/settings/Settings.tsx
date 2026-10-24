@@ -5,16 +5,20 @@ import {
   Database,
   HeartHandshake,
   RefreshCw,
+  BookOpen,
+  Puzzle,
 } from "lucide-react";
 import { api } from "../api/client";
 import { ModelSettings } from "./ModelSettings";
 import { AppearanceSettings } from "./AppearanceSettings";
 import { AboutSettings } from "./AboutSettings";
 import { DataSettings } from "./DataSettings";
+import { TutorialSettings } from "./TutorialSettings";
+import { PluginSettings } from "./PluginSettings";
 import type { Plugin } from "../types";
 import type { Appearance, AppSettings } from "./types";
 
-/** 设置中心只管理导航与服务端配置，具体功能拆在四个独立页面中。 */
+/** 设置中心只管理导航，模型、外观、双路径数据页、教程和团队信息各自独立。 */
 export function Settings({
   plugins,
   notify,
@@ -42,6 +46,12 @@ export function Settings({
   }
   useEffect(() => {
     load();
+    const restored = () => {
+      void load();
+    };
+    window.addEventListener("study-personalization-restored", restored);
+    return () =>
+      window.removeEventListener("study-personalization-restored", restored);
   }, []);
   async function saveAppearance(next: Appearance) {
     const old = appearance;
@@ -67,7 +77,7 @@ export function Settings({
         <div>
           <span className="eyebrow">MAKE IT YOURS</span>
           <h1>设置中心</h1>
-          <p>选用合适的模型，调整舒适的界面，按自己的节奏继续学习。</p>
+          <p>选用模型、安排数据迁移，或在完整教程中逐步学习操作。</p>
         </div>
         <span className="badge">V1.3</span>
       </div>
@@ -75,7 +85,9 @@ export function Settings({
         {[
           { id: "models", title: "模型与API", Icon: Server },
           { id: "appearance", title: "外观设置", Icon: Palette },
+          { id: "plugins", title: "领域插件", Icon: Puzzle },
           { id: "data", title: "数据与同步", Icon: Database },
+          { id: "tutorial", title: "使用教程", Icon: BookOpen },
           { id: "about", title: "关于我们", Icon: HeartHandshake },
         ].map(({ id, title, Icon }) => (
           <button
@@ -120,6 +132,10 @@ export function Settings({
       {tab === "data" && (
         <DataSettings plugins={plugins} notify={notify} changed={changed} />
       )}
+      {tab === "plugins" && (
+        <PluginSettings plugins={plugins} changed={changed} notify={notify} />
+      )}
+      {tab === "tutorial" && <TutorialSettings />}
       {tab === "about" && <AboutSettings />}
     </>
   );

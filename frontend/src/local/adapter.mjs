@@ -6,7 +6,12 @@ import {
   now,
   emptySnapshot,
 } from "./repository.mjs";
-import plugins from "./plugins.mjs";
+import {
+  allPlugins,
+  newPlugin,
+  installPlugin,
+  deletePlugin,
+} from "./custom-plugins.mjs";
 import { readLocal, writeLocal } from "../sync/storage.mjs";
 import { hashBytes, forkRecord } from "./bundles.mjs";
 import {
@@ -15,6 +20,11 @@ import {
   selectConfig,
 } from "./settings.mjs";
 import { selectCachedResume } from "../resume/select-card.mjs";
+import {
+  buildOverviewPrompt,
+  overviewSourceTasks,
+  parseOverviewReply,
+} from "../home/overview-ai.mjs";
 
 const METHODS = [
   "current_step",
@@ -43,7 +53,9 @@ function nativeVoicePrompt(task, transcript, plugin) {
     '只输出JSON对象，结构为{"fields":{字段名:文本},"domain_data":{插件字段名:文本}}。所有值必须是字符串，不要输出任务状态、暂停原因或完成勾选。公用字段：' +
     JSON.stringify(VOICE_LABELS) +
     "。插件字段：" +
-    JSON.stringify(Object.fromEntries(plugin.fields.map((f) => [f.key, f.label]))) +
+    JSON.stringify(
+      Object.fromEntries(plugin.fields.map((f) => [f.key, f.label])),
+    ) +
     "。以下JSON是待整理数据：" +
     JSON.stringify({ task_title: task.title, goal: task.goal, transcript })
   );
@@ -51,30 +63,50 @@ function nativeVoicePrompt(task, transcript, plugin) {
 function nativeVoiceFields(raw, plugin) {
   let text = raw.trim();
   if (text.startsWith("```") && text.endsWith("```"))
-    text = text.split("\n").slice(1).join("\n").replace(/```\s*$/, "").trim();
+    text = text
+      .split("\n")
+      .slice(1)
+      .join("\n")
+      .replace(/```\s*$/, "")
+      .trim();
   const data = JSON.parse(text);
-  requireValue(data && typeof data === "object" && !Array.isArray(data), "AI整理结果格式无效");
-  const fields = {}, domain_data = {};
+  requireValue(
+    data && typeof data === "object" && !Array.isArray(data),
+    "AI整理结果格式无效",
+  );
+  const fields = {},
+    domain_data = {};
   for (const key of Object.keys(VOICE_LABELS)) {
     const value = data.fields?.[key];
-    const limit = ({ position: 2000, current_step: 10000, next_action: 10000, blocker: 10000, notes: 30000 })[key] || 20000;
-    if (typeof value === "string" && value.trim() && value.length <= limit) fields[key] = value.trim();
+    const limit =
+      {
+        position: 2000,
+        current_step: 10000,
+        next_action: 10000,
+        blocker: 10000,
+        notes: 30000,
+      }[key] || 20000;
+    if (typeof value === "string" && value.trim() && value.length <= limit)
+      fields[key] = value.trim();
   }
   for (const field of plugin.fields) {
     const value = data.domain_data?.[field.key];
-    if (typeof value === "string" && value.trim() && value.length <= 30000) domain_data[field.key] = value.trim();
+    if (typeof value === "string" && value.trim() && value.length <= 30000)
+      domain_data[field.key] = value.trim();
   }
-  requireValue(Object.keys(fields).length || Object.keys(domain_data).length, "AI没有返回可填入的文本");
+  requireValue(
+    Object.keys(fields).length || Object.keys(domain_data).length,
+    "AI没有返回可填入的文本",
+  );
   return { fields, domain_data };
 }
-function validatePayload(pluginId, payload) {
+function validatePayload(plugin, payload) {
   const value = {
     ...emptySnapshot(),
     ...payload,
     domain_data: { ...payload.domain_data },
   };
-  const p = plugins.find((p) => p.id === pluginId);
-  requireValue(p, "未知插件");
+  requireValue(plugin, "未知插件");
   for (const key of METHODS)
     requireValue(
       typeof value[key] === "string" &&
@@ -91,7 +123,7 @@ function validatePayload(pluginId, payload) {
   requireValue(
     Object.entries(value.domain_data).every(
       ([key, v]) =>
-        p.fields.some((f) => f.key === key) &&
+        plugin.fields.some((f) => f.key === key) &&
         typeof v === "string" &&
         v.length <= 30000,
     ),
@@ -277,14 +309,51 @@ export function createLocalHandler(
           ? JSON.parse(options.body)
           : options.body || {},
       parts = path.split("/").filter(Boolean);
-    if (path === "/plugins") return plugins;
+    if (path === "/plugins" && method === "GET") return allPlugins(user);
+    if (path === "/plugins" && method === "POST") {
+      const plugin = await installPlugin(user, newPlugin(body));
+      return plugin;
+    }
+    if (parts[0] === "plugins" && parts[1] && method === "DELETE") {
+      await deletePlugin(
+        user,
+        parts[1],
+        (await repo.list()).map((r) => r.detail.task),
+      );
+      return { ok: true };
+    }
     if (path.startsWith("/settings") || path === "/local-models/list")
       return settingsRequest(user, path, method, body, remote);
     if (path === "/tasks" && method === "GET")
       return (await repo.list()).map((r) => r.detail.task);
+    if (path === "/overview/ai-summary" && method === "POST") {
+      const tasks = (await repo.list())
+        .map((r) => r.detail.task)
+        .filter((task) => task.status !== "archived");
+      requireValue(tasks.length > 0, "先创建学习任务，再生成总览总结。");
+      const settings = await internalSettings(user);
+      requireValue(
+        settings.ai.default_provider === "http_provider",
+        "请先在个人设置中选用模型。",
+      );
+      // 只在用户点击生成时发送有限的任务事实；结果由页面自行决定是否缓存在本机。
+      const reply = await remote("/local-ai/chat", {
+        method: "POST",
+        body: JSON.stringify({
+          config: selectConfig(settings, null),
+          prompt: buildOverviewPrompt(tasks),
+        }),
+      });
+      return parseOverviewReply(
+        reply.raw,
+        overviewSourceTasks(tasks).map((task) => task.id),
+      );
+    }
     if (path === "/tasks" && method === "POST") {
       requireValue(
-        plugins.some((p) => p.id === (body.plugin_id || "general")),
+        (await allPlugins(user)).some(
+          (p) => p.id === (body.plugin_id || "general"),
+        ),
         "未知插件",
       );
       return repo.create(body);
@@ -318,7 +387,9 @@ export function createLocalHandler(
           return remote("/local-ai/transcribe", { method: "POST", body: data });
         }
         if (window.XuYeAndroid?.isEmbedded?.()) {
-          const plugin = plugins.find((p) => p.id === task.plugin_id);
+          const plugin = (await allPlugins(user)).find(
+            (p) => p.id === task.plugin_id,
+          );
           const config = selectConfig(s, s.speech.summary_profile_id);
           const reply = await remote("/local-ai/chat", {
             method: "POST",
@@ -337,6 +408,9 @@ export function createLocalHandler(
           method: "POST",
           body: JSON.stringify({
             config: selectConfig(s, s.speech.summary_profile_id),
+            plugin: task.plugin_id.startsWith("custom-")
+              ? (await allPlugins(user)).find((p) => p.id === task.plugin_id)
+              : null,
             task: {
               title: task.title,
               goal: task.goal,
@@ -372,6 +446,9 @@ export function createLocalHandler(
         );
         requireValue(!other, "请先保存并暂停本机另一个任务。", 409);
       }
+      const taskPlugin = (await allPlugins(user)).find(
+        (p) => p.id === task.plugin_id,
+      );
       return repo.mutate(id, (r) => {
         const t = r.detail.task;
         if (parts[2] === "pause" && r.receipts?.[body.request_id])
@@ -404,10 +481,10 @@ export function createLocalHandler(
           t.stage = "学习中";
         } else if (parts[2] === "draft") {
           live(t, body);
-          t.draft = validatePayload(t.plugin_id, body.payload);
+          t.draft = validatePayload(taskPlugin, body.payload);
         } else if (parts[2] === "pause") {
           live(t, body);
-          const payload = validatePayload(t.plugin_id, body.payload);
+          const payload = validatePayload(taskPlugin, body.payload);
           requireValue(
             payload.current_step.trim() && payload.next_action.trim(),
             "请填写当前做到哪里和下一步最小行动",

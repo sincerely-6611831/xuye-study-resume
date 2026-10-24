@@ -21,6 +21,24 @@ html[data-accent="violet"] {
   --accent-soft: #ede4f3;
   --accent-ink: #71558c;
 }
+html[data-accent="amber"] {
+  --green: #9d5b21;
+  --button-bg: #9d5b21;
+  --accent-soft: #f7eadb;
+  --accent-ink: #8d4f18;
+}
+html[data-accent="rose"] {
+  --green: #9d4763;
+  --button-bg: #9d4763;
+  --accent-soft: #f8e6ec;
+  --accent-ink: #8e3654;
+}
+html[data-accent="teal"] {
+  --green: #087572;
+  --button-bg: #087572;
+  --accent-soft: #dff3f0;
+  --accent-ink: #076b68;
+}
 html {
   background: var(--page-bg);
   color: var(--text);
@@ -292,6 +310,28 @@ html[data-theme="dark"] .sync-conflict {
   background: #83978088;
   border-color: #83978055;
 }
+.theme-preview.paper {
+  background: #f3eee1;
+  border-color: #dfd1b9;
+}
+.theme-preview.paper > i {
+  background: #ebe3d1;
+}
+.theme-preview.paper b {
+  background: #fff9ed;
+  border-color: #ded4c0;
+}
+.theme-preview.midnight {
+  background: #0b1724;
+  border-color: #2b4557;
+}
+.theme-preview.midnight > i {
+  background: #0f2030;
+}
+.theme-preview.midnight b {
+  background: #15283a;
+  border-color: #2b4557;
+}
 .accent-options {
   display: flex;
   gap: 14px;
@@ -452,6 +492,142 @@ html[data-theme="dark"][data-accent="violet"] {
   --accent-ink: #c9a9e3;
   --green: #c9a9e3;
   --button-bg: #73538e;
+}
+html[data-theme="dark"][data-accent="amber"] {
+  --accent-soft: #493323;
+  --accent-ink: #f1bd83;
+  --green: #f1bd83;
+  --button-bg: #98551e;
+}
+html[data-theme="dark"][data-accent="rose"] {
+  --accent-soft: #482b36;
+  --accent-ink: #eeb0c5;
+  --green: #eeb0c5;
+  --button-bg: #93405b;
+}
+html[data-theme="dark"][data-accent="teal"] {
+  --accent-soft: #204341;
+  --accent-ink: #97d8d2;
+  --green: #97d8d2;
+  --button-bg: #126c69;
+}
+html[data-palette="paper"] {
+  --page-bg: #f3eee1;
+  --surface: #fff9ed;
+  --sidebar-bg: #ebe3d1;
+  --topbar-bg: #f3eee1ed;
+  --text: #44372c;
+  --muted: #736657;
+  --line: #ded4c0;
+  --soft: #f1e8d5;
+}
+html[data-palette="midnight"] {
+  --page-bg: #0b1724;
+  --surface: #15283a;
+  --sidebar-bg: #0f2030;
+  --topbar-bg: #0c1b2af2;
+  --text: #e3edf4;
+  --muted: #a6bdcb;
+  --line: #2b4557;
+  --soft: #1c3647;
+}
+.font-size-control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.font-size-control input {
+  flex: 1;
+}
+.font-size-control output {
+  min-width: 42px;
+  font-weight: 700;
+}
+.font-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 18px 0;
+}
+.font-options button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 10px 14px;
+}
+.font-options button.selected {
+  border-color: var(--accent-ink);
+  background: var(--accent-soft);
+}
+.custom-font-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.custom-font-row .icon-button {
+  padding: 10px;
+}
+.plugin-field-builder {
+  margin: 18px 0;
+}
+.plugin-field-builder h3 {
+  margin-bottom: 10px;
+}
+.plugin-field-line {
+  display: grid;
+  grid-template-columns: 36px minmax(130px, 1fr) minmax(150px, 1.5fr) 36px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.plugin-field-line input {
+  width: 100%;
+}
+@media (max-width: 680px) {
+  .plugin-field-line {
+    grid-template-columns: 25px 1fr 36px;
+  }
+  .plugin-field-line input:nth-of-type(2) {
+    grid-column: 2;
+  }
+}
+.guide-markdown h3 {
+  margin: 14px 0 22px;
+}
+.guide-markdown h4 {
+  margin: 26px 0 8px;
+  font-size: calc(15px * var(--font-scale, 1));
+}
+.guide-markdown p,
+.guide-markdown li {
+  line-height: 1.85;
+  color: var(--text);
+}
+.guide-markdown p {
+  margin: 13px 0;
+}
+.guide-markdown ol,
+.guide-markdown ul {
+  margin: 10px 0 18px;
+  padding-left: 26px;
+}
+.guide-markdown li {
+  padding: 4px 0;
+}
+.guide-markdown li::marker {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+.guide-markdown pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--soft);
+  border-radius: 10px;
+  padding: 13px;
 }
 html[data-theme="dark"]
   :is(

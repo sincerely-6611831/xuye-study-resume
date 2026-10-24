@@ -18,7 +18,6 @@ export function Personal({
   section,
   onSectionChange,
   onLogout,
-  onShowGuide,
   notify,
   changed,
   appearance,
@@ -30,7 +29,6 @@ export function Personal({
   section: string;
   onSectionChange: (section: string) => void;
   onLogout: () => void;
-  onShowGuide: () => void;
   notify: (text: string) => void;
   changed: () => void;
   appearance: Appearance;
@@ -81,7 +79,9 @@ export function Personal({
                 <UserRound size={20} />
                 账号信息
               </h2>
-              <span className="badge">{androidLocal ? "当前设备" : "当前登录"}</span>
+              <span className="badge">
+                {androidLocal ? "当前设备" : "当前登录"}
+              </span>
             </div>
             <dl className="team-details">
               <div>
@@ -100,7 +100,7 @@ export function Personal({
             <p className="muted">
               {androidLocal
                 ? "任务只保存在这台设备。需要带到其他设备时，在“设置 → 数据与同步”导出 ZIP，再到目标设备恢复。"
-                : "在其他设备登录同一账号，即可查看已经同步的学习记录。"}
+                : "在其他设备登录同一自建服务器账号后，还需主动接收已发送的任务；也可以用完整 ZIP 迁移。"}
             </p>
           </section>
           <div className="personal-stats">
@@ -130,37 +130,20 @@ export function Personal({
               </section>
             ))}
           </div>
-          <section className="panel personal-actions">
-            <div>
-              <h3>应用设置</h3>
-              <p className="muted">
-                模型API、语音记录、外观、数据与插件、关于我们。
-              </p>
-            </div>
-            <button
-              className="secondary"
-              onClick={() => onSectionChange("settings")}
-            >
-              <SettingsIcon size={16} />
-              打开设置
-            </button>
-          </section>
-          <section className="panel personal-actions">
-            <div><h3>使用引导</h3><p className="muted">重新查看创建任务、记录中断、续接和手动同步的步骤。</p></div>
-            <button className="secondary" onClick={onShowGuide}>查看引导</button>
-          </section>
-          {!androidLocal && <section className="panel personal-actions">
-            <div>
-              <h3>登录管理</h3>
-              <p className="muted">
-                未同步的草稿保留在当前浏览器，之后登录此账号可继续处理。
-              </p>
-            </div>
-            <button className="secondary" onClick={onLogout}>
-              <LogOut size={16} />
-              退出登录
-            </button>
-          </section>}
+          {!androidLocal && (
+            <section className="panel personal-actions">
+              <div>
+                <h3>登录管理</h3>
+                <p className="muted">
+                  未同步的草稿保留在当前浏览器，之后登录此账号可继续处理。
+                </p>
+              </div>
+              <button className="secondary" onClick={onLogout}>
+                <LogOut size={16} />
+                退出登录
+              </button>
+            </section>
+          )}
         </div>
       )}
     </div>

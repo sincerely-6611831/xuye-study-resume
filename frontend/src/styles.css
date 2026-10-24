@@ -1,6 +1,13 @@
 /* 基础色板集中管理；修改这里即可调整整个应用的视觉风格。 */
 :root {
-  font-family: Inter, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  font-family: var(
+    --app-font,
+    Inter,
+    "Segoe UI",
+    "Microsoft YaHei",
+    system-ui,
+    sans-serif
+  );
   color: var(--text);
   background: var(--page-bg);
   font-synthesis: none;
@@ -1156,96 +1163,6 @@ hr {
 .settings-grid .panel h3 {
   font-size: calc(14px * var(--font-scale, 1));
 }
-/* 登录页与学习工作台共用色板，不依赖外部字体或图片网络。 */
-.login-layout {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  min-height: 100vh;
-}
-.login-story {
-  background: var(--sidebar-bg);
-  padding: 42px 55px;
-  display: flex;
-  flex-direction: column;
-}
-.login-story > small {
-  font-size: calc(10px * var(--font-scale, 1));
-  margin-top: 50px;
-}
-.login-copy {
-  max-width: 460px;
-  margin: 80px auto 10px;
-  width: 100%;
-}
-.login-copy h1 {
-  font-size: calc(38px * var(--font-scale, 1));
-  color: #4c6842;
-  letter-spacing: 1px;
-  margin: 17px 0 20px;
-  line-height: 1.6;
-}
-.login-copy > p {
-  font-size: calc(12px * var(--font-scale, 1));
-  color: #8e9e80;
-  line-height: 2;
-}
-.paper-preview {
-  background: #fafbf5;
-  border: 1px solid #e0e7d5;
-  border-radius: 8px;
-  padding: 27px 30px;
-  margin-top: 45px;
-  transform: rotate(-2deg);
-  box-shadow: 5px 7px 0 #e1e7d7;
-}
-.paper-preview h3 {
-  font-size: calc(17px * var(--font-scale, 1));
-  color: #718662;
-  margin: 16px 0 22px;
-}
-.paper-preview > div {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  font-size: calc(11px * var(--font-scale, 1));
-  color: #91a180;
-  margin: 15px 0;
-}
-.paper-mark {
-  display: block;
-  font-size: calc(8px * var(--font-scale, 1));
-  letter-spacing: 1px;
-  color: #bdc7b0;
-  border-top: 1px solid #e8eddf;
-  padding-top: 16px;
-  margin-top: 25px;
-}
-.login-form {
-  align-self: center;
-  width: min(360px, 80%);
-  margin: 70px auto;
-}
-.login-form h2 {
-  font-size: calc(24px * var(--font-scale, 1));
-  margin: 14px 0;
-}
-.login-form > p {
-  font-size: calc(12px * var(--font-scale, 1));
-  color: #8f9c85;
-}
-.login-form form {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  margin-top: 34px;
-}
-.login-form form > .primary {
-  margin-top: 8px;
-}
-.switch-auth {
-  text-align: center;
-  margin: 22px 0 30px;
-}
 .help-note {
   border-top: 1px solid var(--line);
   padding-top: 22px;
@@ -1683,36 +1600,177 @@ hr {
   }
 }
 /* 首页统计和待续接列表在宽屏平板上保持双栏，避免空白浪费。 */
-.overview-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 0 0 20px; }
-.overview-stats .panel { display: grid; gap: 8px; padding: 20px; }
-.overview-stats svg { color: var(--green); }
-.overview-stats span { color: var(--muted); font-size: 13px; }
-.overview-stats strong { font-size: 29px; font-weight: 600; }
-.overview-columns { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; }
-.overview-columns .panel { padding: 25px; min-width: 0; }
-.overview-focus { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; }
-.overview-focus p { overflow-wrap: anywhere; }
-.overview-focus .primary { margin-top: auto; }
-.overview-row { display: flex; align-items: center; justify-content: space-between; width: 100%; background: transparent; border-top: 1px solid var(--line); padding: 13px 0; text-align: left; gap: 12px; }
-.overview-row span { min-width: 0; }
-.overview-row strong, .overview-row small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.overview-row small { color: var(--muted); }
-.onboarding { display: grid; gap: 18px; max-width: 480px; }
-.onboarding-icon { width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; color: var(--green); background: var(--soft); }
-.onboarding p { color: var(--muted); }
-.onboarding-dots { display: flex; gap: 6px; }
-.onboarding-dots span { width: 18px; height: 5px; background: var(--line); border-radius: 4px; }
-.onboarding-dots .current { background: var(--green); }
-.onboarding .actions { justify-content: flex-end; flex-wrap: wrap; }
+.overview-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 20px;
+}
+.overview-stats .panel {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+}
+.overview-stats svg {
+  color: var(--green);
+}
+.overview-stats span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.overview-stats strong {
+  font-size: 29px;
+  font-weight: 600;
+}
+.overview-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.overview-columns .panel {
+  padding: 25px;
+  min-width: 0;
+}
+.overview-focus {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+}
+.overview-focus p {
+  overflow-wrap: anywhere;
+}
+.overview-focus .primary {
+  margin-top: auto;
+}
+.overview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  border-top: 1px solid var(--line);
+  padding: 13px 0;
+  text-align: left;
+  gap: 12px;
+}
+.overview-row span {
+  min-width: 0;
+}
+.overview-row strong,
+.overview-row small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.overview-row small {
+  color: var(--muted);
+}
+.overview-ai {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 24px;
+}
+.overview-ai .section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.overview-ai-results {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.overview-ai-results > div {
+  background: var(--soft);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 0;
+}
+.overview-ai-results span {
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 650;
+}
+.overview-ai-results p,
+.overview-ai-empty {
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+}
+.overview-ai-empty {
+  color: var(--muted);
+}
+.overview-ai .actions {
+  justify-content: flex-start;
+}
+.onboarding {
+  display: grid;
+  gap: 18px;
+  max-width: 480px;
+}
+.onboarding-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  background: var(--soft);
+}
+.onboarding p {
+  color: var(--muted);
+}
+.onboarding-dots {
+  display: flex;
+  gap: 6px;
+}
+.onboarding-dots span {
+  width: 18px;
+  height: 5px;
+  background: var(--line);
+  border-radius: 4px;
+}
+.onboarding-dots .current {
+  background: var(--green);
+}
+.onboarding .actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
 @media (min-width: 768px) and (max-width: 1199px) {
-  .overview-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .overview-columns { grid-template-columns: 1fr 1fr; }
-  .board-grid { grid-template-columns: minmax(0, 1fr) minmax(210px, .42fr); }
-  .board-aside { display: block; }
+  .overview-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .overview-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+  .board-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(210px, 0.42fr);
+  }
+  .board-aside {
+    display: block;
+  }
 }
 @media (max-width: 767px) {
-  .overview-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
-  .overview-stats .panel { padding: 14px; }
-  .overview-columns { grid-template-columns: 1fr; }
-  .overview-columns .panel { padding: 18px; }
+  .overview-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .overview-stats .panel {
+    padding: 14px;
+  }
+  .overview-columns {
+    grid-template-columns: 1fr;
+  }
+  .overview-columns .panel {
+    padding: 18px;
+  }
+  .overview-ai {
+    padding: 18px;
+  }
+  .overview-ai-results {
+    grid-template-columns: 1fr;
+  }
 }

@@ -6,6 +6,9 @@ const defaults = () => ({
     theme: "light",
     accent: "sage",
     font_size: "medium",
+    font_scale: 1,
+    font_family: "system",
+    font_id: "",
     density: "comfortable",
   },
   ai: {

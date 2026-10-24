@@ -66,7 +66,17 @@ def main():
         npm = shutil.which("npm.cmd" if os.name == "nt" else "npm")
         if not npm:
             raise RuntimeError("未找到Node.js/npm，请先安装Node.js LTS后重新运行。")
-        if args.setup or not (front / "node_modules").exists():
+        # 仅检查 node_modules 目录不够：新增 Motion 等依赖后，旧目录仍存在但缺少新包。
+        installed_lock = front / "node_modules" / ".package-lock.json"
+        manifest_changed = max(
+            (front / "package.json").stat().st_mtime,
+            (front / "package-lock.json").stat().st_mtime,
+        )
+        if (
+            args.setup
+            or not installed_lock.exists()
+            or installed_lock.stat().st_mtime < manifest_changed
+        ):
             run([npm, "ci"], front)
         run([npm, "run", "build"], front)
     # 检查端口，避免用户误以为新服务已启动，实际上打开的是另一个程序。

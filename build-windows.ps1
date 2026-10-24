@@ -23,7 +23,13 @@ if (-not (Test-Path -LiteralPath $bootstrapper)) {
 }
 
 Push-Location frontend
-try { npm.cmd run build; if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed.' } }
+try {
+    # 按锁文件准备 React、Motion 等依赖；Vite 随后将它们写入安装包内的静态资源。
+    npm.cmd ci
+    if ($LASTEXITCODE -ne 0) { throw 'Frontend dependencies could not be installed.' }
+    npm.cmd run build
+    if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed.' }
+}
 finally { Pop-Location }
 .venv\Scripts\python.exe -m pip install pyinstaller
 if ($LASTEXITCODE -ne 0) { throw 'PyInstaller installation failed.' }

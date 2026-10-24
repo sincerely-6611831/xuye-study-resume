@@ -6,6 +6,7 @@ data/
 __pycache__/
 .pytest_cache/
 .superpowers/
+.vs/
 *.pyc
 *.log
 *.tsbuildinfo

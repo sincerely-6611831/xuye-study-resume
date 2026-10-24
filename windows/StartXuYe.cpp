@@ -115,8 +115,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR args, int show) {
         nullptr, nullptr, instance, nullptr);
     ShowWindow(mainWindow, show);
     if (share) MessageBoxW(mainWindow,
-        L"局域网共享已开启。手机与电脑接入同一网络后，在 Android 应用点“连接电脑”，输入 http://电脑的局域网IPv4:18461。\n\n学习数据仍需在“数据与同步”中主动选择任务发送或接收。",
-        L"续页 · 连接手机", MB_OK | MB_ICONINFORMATION);
+        L"自建服务器的局域网访问已开启。手机与电脑接入同一网络后，在 Android 应用点“连接服务器”，输入 http://电脑的局域网IPv4:18461。\n\n学习数据仍需在“数据与同步”中主动选择任务发送或接收。跨公网请部署 HTTPS。",
+        L"续页 · 自建服务器", MB_OK | MB_ICONINFORMATION);
     wchar_t appData[MAX_PATH]{};
     GetEnvironmentVariableW(L"LOCALAPPDATA", appData, MAX_PATH);
     std::wstring profile = std::wstring(appData) + L"\\XuYe\\WebView2";

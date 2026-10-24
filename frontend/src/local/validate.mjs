@@ -1,7 +1,7 @@
 import plugins from "./plugins.mjs";
 import { requireValue } from "./repository.mjs";
 /** 备份同网络输入一样不可信；先验证所有引用，再允许成为本机正式记录。 */
-export function validateDetail(d) {
+export function validateDetail(d, suppliedPlugin) {
   const fail = (message) =>
     requireValue(false, message || "任务字段或来源引用无效");
   const text = (v, max = 20000) => typeof v === "string" && v.length <= max;
@@ -30,8 +30,9 @@ export function validateDetail(d) {
       fail("记录存在重复或无效编号");
   }
   const t = d.task,
-    plugin = plugins.find((p) => p.id === t.plugin_id);
+    plugin = suppliedPlugin || plugins.find((p) => p.id === t.plugin_id);
   if (!plugin) fail("未知插件");
+  if (plugin.id !== t.plugin_id) fail("插件与任务不匹配");
   function snapshot(p) {
     if (!p || typeof p !== "object") fail();
     const lengths = {

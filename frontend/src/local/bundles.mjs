@@ -2,6 +2,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { newId, now, requireValue } from "./repository.mjs";
 import { validateDetail } from "./validate.mjs";
+import { validatePlugin } from "./custom-plugins.mjs";
 export const hashBytes = (bytes) => bytesToHex(sha256(bytes));
 function encode(bytes) {
   let text = "";
@@ -12,7 +13,7 @@ function encode(bytes) {
 function decode(text) {
   return Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
 }
-export async function packBundle(record) {
+export async function packBundle(record, plugin = record.plugin) {
   const files = [];
   for (const r of record.detail.resources) {
     const blob = record.files[r.id];
@@ -22,7 +23,13 @@ export async function packBundle(record) {
       data: encode(new Uint8Array(await blob.arrayBuffer())),
     });
   }
-  return { detail: structuredClone(record.detail), files };
+  return {
+    detail: structuredClone(record.detail),
+    files,
+    ...(plugin?.id?.startsWith("custom-")
+      ? { plugin: validatePlugin(plugin) }
+      : {}),
+  };
 }
 export function unpackBundle(bundle) {
   requireValue(
@@ -31,7 +38,8 @@ export function unpackBundle(bundle) {
   );
   const detail = structuredClone(bundle.detail),
     files = {};
-  validateDetail(detail);
+  const plugin = bundle.plugin ? validatePlugin(bundle.plugin) : undefined;
+  validateDetail(detail, plugin);
   let total = 0;
   requireValue(
     !bundle.settings && !bundle.api_key,
@@ -57,6 +65,7 @@ export function unpackBundle(bundle) {
   );
   return {
     detail,
+    ...(plugin ? { plugin } : {}),
     files,
     dirty: false,
     base_revision: null,

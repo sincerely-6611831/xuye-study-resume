@@ -39,6 +39,9 @@ $env:XUYE_KEYSTORE = $keystore
 $env:XUYE_SIGN_PASSWORD = $password
 Push-Location frontend
 try {
+    # 从 package-lock.json 安装固定版本依赖，再把生成的界面封入 APK。
+    npm.cmd ci
+    if ($LASTEXITCODE -ne 0) { throw 'Frontend dependencies could not be installed.' }
     npm.cmd run build
     if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed.' }
 } finally { Pop-Location }

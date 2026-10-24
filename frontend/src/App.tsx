@@ -10,6 +10,7 @@ import {
   X,
   ArrowRight,
   CloudUpload,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { api, ApiError, post } from "./api/client";
 import { Login } from "./auth/Login";
@@ -18,6 +19,7 @@ import { NewTask } from "./tasks/NewTask";
 import { Workspace } from "./workspace/Workspace";
 import { Personal } from "./personal/Personal";
 import { Overview } from "./home/Overview";
+import { Analytics } from "./analytics/Analytics";
 import { Onboarding } from "./home/Onboarding";
 import { useAppearance } from "./settings/useAppearance";
 import { Modal } from "./components/Modal";
@@ -96,8 +98,21 @@ export default function App() {
       ]);
       setTasks(t);
       // Android 外壳只接收标题与计数，不接收笔记、密钥或附件。
-      const bridge = (window as Window & { XuYeAndroid?: { updateOverview: (summary: string) => void } }).XuYeAndroid;
-      bridge?.updateOverview(JSON.stringify({ waiting: t.filter((item) => ["paused", "blocked"].includes(item.status)).length, title: t.find((item) => ["paused", "blocked"].includes(item.status))?.title || "暂无待续接任务" }));
+      const bridge = (
+        window as Window & {
+          XuYeAndroid?: { updateOverview: (summary: string) => void };
+        }
+      ).XuYeAndroid;
+      bridge?.updateOverview(
+        JSON.stringify({
+          waiting: t.filter((item) =>
+            ["paused", "blocked"].includes(item.status),
+          ).length,
+          title:
+            t.find((item) => ["paused", "blocked"].includes(item.status))
+              ?.title || "暂无待续接任务",
+        }),
+      );
       setPlugins(p);
       setOffline(false);
       setFatal("");
@@ -127,7 +142,9 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     localStorage.setItem("study-last-user", JSON.stringify(user));
-    setShowOnboarding(localStorage.getItem(`study-onboarded:${user.id}`) !== "1");
+    setShowOnboarding(
+      localStorage.getItem(`study-onboarded:${user.id}`) !== "1",
+    );
     refresh().catch((e) => setFatal("本机缓存不可用：" + e.message));
   }, [user?.id]);
   useEffect(() => {
@@ -187,7 +204,11 @@ export default function App() {
     );
   }
   async function logout() {
-    if ((window as Window & { XuYeAndroid?: { isEmbedded?: () => boolean } }).XuYeAndroid?.isEmbedded?.()) {
+    if (
+      (
+        window as Window & { XuYeAndroid?: { isEmbedded?: () => boolean } }
+      ).XuYeAndroid?.isEmbedded?.()
+    ) {
       notify("当前是 Android 本机空间，无需退出登录。");
       return;
     }
@@ -200,7 +221,13 @@ export default function App() {
       setPlugins([]);
       setView("home");
       setPersonalSection("account");
-      (window as Window & { XuYeAndroid?: { updateOverview: (summary: string) => void } }).XuYeAndroid?.updateOverview(JSON.stringify({ waiting: 0, title: "请登录查看任务" }));
+      (
+        window as Window & {
+          XuYeAndroid?: { updateOverview: (summary: string) => void };
+        }
+      ).XuYeAndroid?.updateOverview(
+        JSON.stringify({ waiting: 0, title: "请登录查看任务" }),
+      );
     } catch (e) {
       notify((e as Error).message);
     }
@@ -228,6 +255,7 @@ export default function App() {
           {[
             ["home", "总览", LayoutDashboard],
             ["tasks", "学习任务", LayoutDashboard],
+            ["analytics", "学习分析", ChartNoAxesCombined],
             ["history", "已完成与归档", History],
             ["personal", "个人", UserRound],
           ].map(([key, label, Icon]) => {
@@ -276,7 +304,11 @@ export default function App() {
                   : "个人"
                 : view === "history"
                   ? "学习归档"
-                  : view === "home" ? "总览" : "学习任务"}
+                  : view === "analytics"
+                    ? "学习分析"
+                    : view === "home"
+                      ? "总览"
+                      : "学习任务"}
           </div>
           <div className="topbar-actions">
             {pending.length > 0 && (
@@ -304,7 +336,8 @@ export default function App() {
         {offline && (
           <div className="offline-banner">
             <WifiOff size={16} />
-            当前使用本机记录，可创建任务、编辑和暂停。联网后可在设置中选择同步，AI需要连接模型网关。
+            当前使用本机记录，可创建任务、编辑和暂停。跨设备可连接自建服务器手动同步，或导出完整
+            ZIP；AI 需要连接模型服务。
           </div>
         )}
         {fatal && <div className="offline-banner error">{fatal}</div>}
@@ -323,7 +356,17 @@ export default function App() {
               changed={() => refresh().catch(() => {})}
             />
           ) : view === "home" ? (
-            <Overview tasks={tasks} onOpen={setSelected} onNew={() => setNewTask(true)} onTasks={() => navigate("tasks")} />
+            <Overview
+              userId={user.id}
+              tasks={tasks}
+              onOpen={setSelected}
+              onNew={() => setNewTask(true)}
+              onTasks={() => navigate("tasks")}
+              onSettings={() => {
+                setPersonalSection("settings");
+                navigate("personal");
+              }}
+            />
           ) : view === "personal" ? (
             <Personal
               user={user}
@@ -331,13 +374,14 @@ export default function App() {
               section={personalSection}
               onSectionChange={setPersonalSection}
               onLogout={logout}
-              onShowGuide={() => setShowOnboarding(true)}
               plugins={plugins}
               notify={notify}
               changed={() => refresh().catch(() => {})}
               appearance={appearance}
               onAppearanceChange={changeAppearance}
             />
+          ) : view === "analytics" ? (
+            <Analytics tasks={tasks} plugins={plugins} onOpen={setSelected} />
           ) : (
             <TaskBoard
               tasks={tasks}
@@ -369,6 +413,7 @@ export default function App() {
         {[
           ["home", "总览", LayoutDashboard],
           ["tasks", "任务", LayoutDashboard],
+          ["analytics", "分析", ChartNoAxesCombined],
           ["history", "归档", History],
           ["personal", "个人", UserRound],
         ].map(([k, text, Icon]) => {
@@ -401,10 +446,14 @@ export default function App() {
           </button>
         </div>
       )}
-      {showOnboarding && <Onboarding onClose={() => {
-        localStorage.setItem(`study-onboarded:${user.id}`, "1");
-        setShowOnboarding(false);
-      }} />}
+      {showOnboarding && (
+        <Onboarding
+          onClose={() => {
+            localStorage.setItem(`study-onboarded:${user.id}`, "1");
+            setShowOnboarding(false);
+          }}
+        />
+      )}
       {showPending && (
         <Modal title="本机待提交记录" onClose={() => setShowPending(false)}>
           <div className="stack">

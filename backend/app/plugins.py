@@ -63,8 +63,8 @@ def get_plugin(plugin_id):
     return {"id": plugin_id, "version": "1.0.0", **PLUGINS[plugin_id]}
 
 
-def validate_payload(plugin_id, payload):
-    plugin = get_plugin(plugin_id)
+def validate_payload(plugin_id, payload, supplied_plugin=None):
+    plugin = supplied_plugin or get_plugin(plugin_id)
     domain = payload.get("domain_data", {})
     allowed = {f["key"] for f in plugin["fields"]}
     if not isinstance(domain, dict) or any(

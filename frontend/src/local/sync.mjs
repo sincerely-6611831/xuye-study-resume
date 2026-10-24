@@ -1,6 +1,7 @@
 import { LocalRepository, requireValue } from "./repository.mjs";
 import { packBundle, unpackBundle, forkRecord } from "./bundles.mjs";
 import { atomicRecords } from "../sync/storage.mjs";
+import { allPlugins, installPlugin } from "./custom-plugins.mjs";
 let remoteApi;
 export function configureSync(remote) {
   remoteApi = remote;
@@ -27,13 +28,17 @@ export const listRemoteTasks = () => remoteApi("/device-sync");
 export async function pushRecord(repo, id, remote) {
   const record = await repo.effective(id),
     version = record.local_version;
+  const plugin = (await allPlugins(repo.userId)).find(
+    (p) => p.id === record.detail.task.plugin_id,
+  );
+  requireValue(plugin, "任务使用的自定义插件已丢失，请先从ZIP恢复插件");
   const response = await remote("/device-sync/" + id, {
     method: "PUT",
     headers: { "X-Study-User": repo.userId },
     body: JSON.stringify({
       expected_revision: record.base_revision,
       device_name: "学习设备",
-      bundle: await packBundle(record),
+      bundle: await packBundle(record, plugin),
     }),
   });
   // 在等待网络时可能继续编辑；只更新同步基准，绝不把新内容标成已上传。
@@ -69,6 +74,7 @@ export async function pullRecord(repo, id, remote) {
     headers: { "X-Study-User": repo.userId },
   });
   const incoming = unpackBundle(response.bundle);
+  if (incoming.plugin) await installPlugin(repo.userId, incoming.plugin);
   incoming.base_revision = response.revision;
   // 本机活跃会话成为历史；接收后在本机重新开始，不能接管另一设备的旧session。
   incoming.detail.task.session = null;

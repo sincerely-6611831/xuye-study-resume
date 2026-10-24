@@ -20,6 +20,9 @@ test("损坏或旧缓存回到有效默认值，完整配置产生全局外观�
       accent: "blue",
       font_size: "medium",
       density: "comfortable",
+      font_scale: 1,
+      font_family: "system",
+      font_id: "",
     },
   );
   const attrs = appearanceAttributes(

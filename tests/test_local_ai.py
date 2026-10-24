@@ -149,6 +149,15 @@ def test_local_ai_voice_uses_whitelist_and_never_creates_a_task(local_ai, provid
         "model": "small",
         "profile_name": "我的电脑",
     }
+    result["chat"] = json.dumps({"fields": {}, "domain_data": {"sentence": "hello", "unknown": "ignore"}})
+    custom = {
+        "id": "custom-12345678", "version": "1.0.0", "name": "听力",
+        "description": "记录关键句", "warmup": "哪一句不懂？",
+        "fields": [{"key": "sentence", "label": "关键句", "hint": "原句", "type": "textarea"}],
+    }
+    request = {"config": config(base), "task": {"title": "听力", "goal": "理解", "plugin_id": custom["id"]}, "transcript": "hello", "plugin": custom}
+    assert c.post("/api/local-ai/summarize", json=request).json()["domain_data"] == {"sentence": "hello"}
+    assert c.post("/api/local-ai/summarize", json={**request, "plugin": None}).status_code == 422
     assert c.get("/api/tasks").json() == []
     assert (
         c.post(
