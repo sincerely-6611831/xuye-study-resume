@@ -1,5 +1,5 @@
 ; 续页 Windows 安装包。应用、Python 服务与 WebView2 Loader 一起安装。
-#define AppVersion "1.5.0"
+#define AppVersion "1.5.1"
 [Setup]
 AppId={{9CCB7921-6ABC-4FDE-BCB1-313583919E44}
 AppName=续页

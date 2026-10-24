@@ -256,7 +256,7 @@ export async function restoreBackup(file) {
             settingsKey,
             {
               ...(oldSettings || {}),
-              version: oldSettings?.version || "1.5.0",
+              version: oldSettings?.version || "1.5.1",
               appearance: personalization.appearance,
               ai: { ...(oldSettings?.ai || {}), ...personalization.ai },
               speech: personalization.speech,

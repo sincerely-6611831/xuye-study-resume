@@ -43,4 +43,4 @@ if ($LASTEXITCODE -ne 0) { throw 'Visual Studio desktop build failed.' }
 Copy-Item -LiteralPath (Join-Path $native 'x64\WebView2Loader.dll') -Destination 'dist\XuYe\WebView2Loader.dll' -Force
 & $iscc 'windows\XuYe.iss'
 if ($LASTEXITCODE -ne 0) { throw 'Windows installer build failed.' }
-Write-Host 'Built dist\XuYe-Setup-1.5.0.exe. Install it, then open XuYe from the desktop or Start menu.'
+Write-Host 'Built dist\XuYe-Setup-1.5.1.exe. Install it, then open XuYe from the desktop or Start menu.'
