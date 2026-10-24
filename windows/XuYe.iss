@@ -1,10 +1,11 @@
 ; 续页 Windows 安装包。应用、Python 服务与 WebView2 Loader 一起安装。
-#define AppVersion "1.4.0"
+#define AppVersion "1.5.0"
 [Setup]
 AppId={{9CCB7921-6ABC-4FDE-BCB1-313583919E44}
 AppName=续页
 AppVersion={#AppVersion}
 AppPublisher=硅基觉醒（Silicon Awakening）
+SetupIconFile=XuYe.ico
 DefaultDirName={localappdata}\Programs\XuYe
 DefaultGroupName=续页
 OutputDir=..\dist

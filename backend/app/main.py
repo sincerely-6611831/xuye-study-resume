@@ -29,7 +29,7 @@ load_dotenv(ROOT / ".env")
 
 
 def create_app(data_dir=None):
-    app = FastAPI(title="学习断片续接器", version="1.4.0")
+    app = FastAPI(title="学习断片续接器", version="1.5.0")
     app.state.db = Database(
         Path(data_dir) if data_dir else Path(os.getenv("STUDY_DATA_DIR", ROOT / "data"))
     )
@@ -83,7 +83,7 @@ def create_app(data_dir=None):
 
     @app.get("/api/health")
     def health():
-        return {"ok": True, "version": "1.4.0"}
+        return {"ok": True, "version": "1.5.0"}
 
     @app.get("/api/plugins")
     def plugins(user=Depends(auth.current_user)):

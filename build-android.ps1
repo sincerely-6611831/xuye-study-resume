@@ -53,8 +53,8 @@ try {
 Remove-Item Env:XUYE_SIGN_PASSWORD,Env:XUYE_KEYSTORE -ErrorAction SilentlyContinue
 $password = $null
 New-Item -ItemType Directory -Force -Path 'dist\Android' | Out-Null
-Copy-Item -LiteralPath 'android\mobile\build\outputs\apk\debug\mobile-debug.apk' -Destination 'dist\Android\XuYe-Phone-Tablet-1.4-debug.apk'
-Copy-Item -LiteralPath 'android\wear\build\outputs\apk\debug\wear-debug.apk' -Destination 'dist\Android\XuYe-WearOS-1.4-debug.apk'
-Copy-Item -LiteralPath 'android\mobile\build\outputs\apk\release\mobile-release.apk' -Destination 'dist\Android\XuYe-Phone-Tablet-1.4.apk'
-Copy-Item -LiteralPath 'android\wear\build\outputs\apk\release\wear-release.apk' -Destination 'dist\Android\XuYe-WearOS-1.4.apk'
+Copy-Item -LiteralPath 'android\mobile\build\outputs\apk\debug\mobile-debug.apk' -Destination 'dist\Android\XuYe-Phone-Tablet-1.5-debug.apk'
+Copy-Item -LiteralPath 'android\wear\build\outputs\apk\debug\wear-debug.apk' -Destination 'dist\Android\XuYe-WearOS-1.5-debug.apk'
+Copy-Item -LiteralPath 'android\mobile\build\outputs\apk\release\mobile-release.apk' -Destination 'dist\Android\XuYe-Phone-Tablet-1.5.apk'
+Copy-Item -LiteralPath 'android\wear\build\outputs\apk\release\wear-release.apk' -Destination 'dist\Android\XuYe-WearOS-1.5.apk'
 Write-Host 'Built signed release APKs in dist\Android; debug APKs are also retained for testing.'

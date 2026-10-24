@@ -249,7 +249,7 @@ export default function App() {
           <span>RESUME</span>
         </div>
         <div className="space-label">
-          我的学习空间 <span>V1.4</span>
+          我的学习空间 <span>V1.5</span>
         </div>
         <nav aria-label="主导航">
           {[

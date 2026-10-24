@@ -33,14 +33,14 @@ try {
 finally { Pop-Location }
 .venv\Scripts\python.exe -m pip install pyinstaller
 if ($LASTEXITCODE -ne 0) { throw 'PyInstaller installation failed.' }
-.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --onedir --name XuYe --add-data 'frontend\dist;frontend\dist' --collect-submodules backend.app windows_entry.py
+.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --onedir --name XuYe --icon 'windows\XuYe.ico' --add-data 'frontend\dist;frontend\dist' --collect-submodules backend.app windows_entry.py
 if ($LASTEXITCODE -ne 0) { throw 'Windows packaging failed.' }
 
 $native = (Resolve-Path -LiteralPath $sdkRoot).Path
-$compile = '"' + $vsdev + '" -arch=x64 >nul && cl /nologo /std:c++17 /utf-8 /EHsc /O2 /I"' + $native + '\include" /Fe:"dist\XuYe\StartXuYe.exe" "windows\StartXuYe.cpp" /link /SUBSYSTEM:WINDOWS /LIBPATH:"' + $native + '\x64" WebView2Loader.dll.lib'
+$compile = '"' + $vsdev + '" -arch=x64 >nul && rc /nologo /fo "windows\XuYe.res" "windows\XuYe.rc" && cl /nologo /std:c++17 /utf-8 /EHsc /O2 /I"' + $native + '\include" /Fe:"dist\XuYe\StartXuYe.exe" "windows\StartXuYe.cpp" /link /SUBSYSTEM:WINDOWS /LIBPATH:"' + $native + '\x64" WebView2Loader.dll.lib "windows\XuYe.res"'
 cmd.exe /d /s /c $compile
 if ($LASTEXITCODE -ne 0) { throw 'Visual Studio desktop build failed.' }
 Copy-Item -LiteralPath (Join-Path $native 'x64\WebView2Loader.dll') -Destination 'dist\XuYe\WebView2Loader.dll' -Force
 & $iscc 'windows\XuYe.iss'
 if ($LASTEXITCODE -ne 0) { throw 'Windows installer build failed.' }
-Write-Host 'Built dist\XuYe-Setup-1.4.0.exe. Install it, then open XuYe from the desktop or Start menu.'
+Write-Host 'Built dist\XuYe-Setup-1.5.0.exe. Install it, then open XuYe from the desktop or Start menu.'

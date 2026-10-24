@@ -3,7 +3,7 @@ android {
     namespace 'cn.xuye.study.wear'
     compileSdk 35
     // Data Layer 要求手表与手机使用相同 applicationId 和签名。
-    defaultConfig { applicationId 'cn.xuye.study'; minSdk 26; targetSdk 35; versionCode 1; versionName '1.4.0' }
+    defaultConfig { applicationId 'cn.xuye.study'; minSdk 26; targetSdk 35; versionCode 2; versionName '1.5.0' }
     signingConfigs {
         release {
             if (System.getenv('XUYE_KEYSTORE')) {

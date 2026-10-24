@@ -1,0 +1,2 @@
+// Windows 资源脚本：让启动程序与任务栏显示续页 Logo。
+IDI_XUYE_ICON ICON "windows\\XuYe.ico"

@@ -17,3 +17,4 @@ build/
 dist/
 *.spec
 *.obj
+*.res

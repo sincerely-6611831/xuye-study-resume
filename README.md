@@ -2,19 +2,21 @@
 
 ## 多端版本进展
 
-- 网页：登录后首次显示四步引导，之后可从“个人 → 设置 → 使用教程”查看完整说明；首页“总览”显示待续接、学习中、已完成及下一步。手机单栏，平板在 768dp 以上保留双栏。
-- Windows：运行 [安装包](dist/XuYe-Setup-1.4.0.exe)，安装后从桌面或开始菜单打开“续页”。这是 Visual Studio 2022 C++ 编译的原生 WebView2 窗口，静态页面与 Python 服务一同安装；窗口内自动连接固定的本机端口 18461，无需打开浏览器或手动输入地址。安装器在缺少 WebView2 Runtime 时会联网安装它。打包版数据库与窗口资料位于当前用户的 `%LOCALAPPDATA%/XuYe/`，与开发版 `data/` 分开。用 `build-windows.ps1` 可重新生成安装包。
-- Android 手机/平板：安装[正式签名 APK](dist/Android/XuYe-Phone-Tablet-1.4.apk)（Android 8.0 及以上）。APK 已包含网页界面，首次打开直接进入本机空间，无需电脑或端口；创建任务、学习、暂停、查看续接卡、材料、备份与恢复可离线使用。手机和平板分别保存自己的本机数据。录音会请求 Android 麦克风权限；导出备份会打开 Android 文件保存界面。桌面小组件使用官方 `AppWidgetProvider`，展示最近一次打开续页时的待续接数量和标题。需要重新构建时运行 `build-android.ps1`，或在 Android Studio 打开 `android/`。
-- 当前源码中的跨设备入口只有两种：自行部署服务器后手动发送/接收任务，或导出完整 ZIP 到目标设备再导入。已有 1.4 安装包和 APK 尚未包含新版图表、自定义插件、个性化备份及 Markdown 手册；用户要求暂不编译，需获得确认后再更新成品；旧包上的“连接电脑”对应自建服务器的一种局域网部署形式。Android 本机空间与服务器账号空间独立，切换空间不会自动迁移任务。模型推理和语音转写仍需用户配置可用接口；APK 不含模型权重。
-- Wear OS：[正式签名 APK](dist/Android/XuYe-WearOS-1.4.apk)是圆屏简化总览，使用安全边距和滚动容器。配对 Android 手机打开续页后，Google Play services Data Layer 传送待续接数量和标题。手表不传完整任务、附件或模型密钥，也不在手表上编辑任务；需要支持 Wear OS 和 Data Layer 的配对设备。
+本次发布的功能完善过程见 [v1.5.0 发布说明](docs/release-v1.5.0.md)。
 
-两个正式 APK 已由本机 Android SDK 35 和 JDK 17 编译，使用相同的团队发布签名；手机/平板正式包已在 Android 模拟器上安装并打开。先前 debug 包完成了离线创建任务、重启后读取、模拟模型接口和文件导出测试。手表包与桌面小组件尚未在对应设备验收。签名密钥在当前电脑的 `%LOCALAPPDATA%\XuYe\signing\`，密码由 Windows 当前账号保护。换电脑前运行 `android/export-signing-key.ps1 -DestinationDirectory 你的私密备份目录`，自行设置并记住备份密码，妥善保管导出的 P12 文件。不要把密钥和密码提交到代码仓库。
+- 网页：登录后首次显示四步引导，之后可从“个人 → 设置 → 使用教程”查看完整说明；首页“总览”显示待续接、学习中、已完成及下一步。手机单栏，平板在 768dp 以上保留双栏。
+- Windows：运行 [安装包](https://github.com/sincerely-6611831/xuye-study-resume/releases/download/v1.5.0/XuYe-Setup-1.5.0.exe)，安装后从桌面或开始菜单打开“续页”。这是 Visual Studio 2022 C++ 编译的原生 WebView2 窗口，静态页面与 Python 服务一同安装；窗口内自动连接固定的本机端口 18461，无需打开浏览器或手动输入地址。安装器在缺少 WebView2 Runtime 时会联网安装它。打包版数据库与窗口资料位于当前用户的 `%LOCALAPPDATA%/XuYe/`，与开发版 `data/` 分开。用 `build-windows.ps1` 可重新生成安装包。
+- Android 手机/平板：安装[正式签名 APK](https://github.com/sincerely-6611831/xuye-study-resume/releases/download/v1.5.0/XuYe-Phone-Tablet-1.5.apk)（Android 8.0 及以上）。APK 已包含网页界面，首次打开直接进入本机空间，无需电脑或端口；创建任务、学习、暂停、查看续接卡、材料、备份与恢复可离线使用。手机和平板分别保存自己的本机数据。录音会请求 Android 麦克风权限；导出备份会打开 Android 文件保存界面。桌面小组件使用官方 `AppWidgetProvider`，展示最近一次打开续页时的待续接数量和标题。需要重新构建时运行 `build-android.ps1`，或在 Android Studio 打开 `android/`。
+- 当前源码中的跨设备入口只有两种：自行部署服务器后手动发送/接收任务，或导出完整 ZIP 到目标设备再导入。旧包上的“连接电脑”对应自建服务器的一种局域网部署形式。Android 本机空间与服务器账号空间独立，切换空间不会自动迁移任务。模型推理和语音转写仍需用户配置可用接口；APK 不含模型权重。
+- Wear OS：[正式签名 APK](https://github.com/sincerely-6611831/xuye-study-resume/releases/download/v1.5.0/XuYe-WearOS-1.5.apk)是圆屏简化总览，使用安全边距和滚动容器。配对 Android 手机打开续页后，Google Play services Data Layer 传送待续接数量和标题。手表不传完整任务、附件或模型密钥，也不在手表上编辑任务；需要支持 Wear OS 和 Data Layer 的配对设备。
+
+两个正式 APK 已由本机 Android SDK 35 和 JDK 17 编译，使用相同的团队发布签名；先前版本的手机/平板正式包已在 Android 模拟器上安装并打开；v1.5.0 的真机安装仍需验收。先前 debug 包完成了离线创建任务、重启后读取、模拟模型接口和文件导出测试。手表包与桌面小组件尚未在对应设备验收。签名密钥在当前电脑的 `%LOCALAPPDATA%\XuYe\signing\`，密码由 Windows 当前账号保护。换电脑前运行 `android/export-signing-key.ps1 -DestinationDirectory 你的私密备份目录`，自行设置并记住备份密码，妥善保管导出的 P12 文件。不要把密钥和密码提交到代码仓库。
 
 如果设备上已安装上一版 debug APK，由于签名不同，不能直接覆盖安装正式包：先在旧版导出完整 ZIP，卸载 debug 包，安装正式包，再导入 ZIP。
 
 记录学习中断时的位置、思路和下一步，使用续学卡在电脑、手机和平板上接着学习。
 
-当前版本1.4：学习数据先保存在各设备本机的网页存储中，只有你选择任务并发送，其他设备才能接收。安装版 Android 自带独立本机空间；Windows 内嵌窗口也有自己的本机空间。原来在系统浏览器的学习数据不会自动进入新窗口，先在旧版导出 ZIP，再在安装版恢复。
+当前版本1.5：学习数据先保存在各设备本机的网页存储中，只有你选择任务并发送，其他设备才能接收。安装版 Android 自带独立本机空间；Windows 内嵌窗口也有自己的本机空间。原来在系统浏览器的学习数据不会自动进入新窗口，先在旧版导出 ZIP，再在安装版恢复。
 
 ## 第一次启动
 
@@ -28,7 +30,7 @@ python run.py
 
 初次运行需要联网安装依赖和构建界面，之后打开 http://127.0.0.1:8000 。点击“创建账号”，自行设置用户名与密码，没有预设公用账号。启动终端需要保持打开，Ctrl+C停止服务。
 
-新版界面的动效使用 `motion` 运行依赖，固定版本记录在 `frontend/package.json` 和 `frontend/package-lock.json`。源码开发时在 `frontend/` 执行 `npm ci` 即可准备依赖；将来获得编译确认后，Windows 与 Android 构建脚本也会先执行 `npm ci`，再把前端产物连同 Motion 代码封入安装包或 APK，设备端无需另装 npm 包。当前已发布的安装包和 APK尚未包含新版总览、双路径数据页和完整教程。
+新版界面的动效使用 `motion` 运行依赖，固定版本记录在 `frontend/package.json` 和 `frontend/package-lock.json`。源码开发时在 `frontend/` 执行 `npm ci` 即可准备依赖；Windows 与 Android 构建脚本也会先执行 `npm ci`，再把前端产物连同 Motion 代码封入安装包或 APK，设备端无需另装 npm 包。v1.5.0 安装包包含新版总览、学习分析、双路径数据页和完整教程。
 
 重新准备依赖或重新构建：`python run.py --setup`；端口被其他程序占用时：`python run.py --port 8002`。
 
