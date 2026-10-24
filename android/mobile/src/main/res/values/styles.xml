@@ -1,0 +1,8 @@
+<resources>
+    <!-- 系统栏与应用深色顶栏衔接；Android 15 透明状态栏时由 Activity 根视图补色。 -->
+    <style name="XuYeTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#142119</item>
+        <item name="android:navigationBarColor">#142119</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

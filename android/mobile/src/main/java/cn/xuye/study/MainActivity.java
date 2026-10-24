@@ -47,9 +47,27 @@ public class MainActivity extends Activity {
             (getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0);
         openBundled();
     }
+    private void setContentWithInsets(android.view.View content) {
+        android.widget.FrameLayout frame = new android.widget.FrameLayout(this);
+        frame.setBackgroundColor(android.graphics.Color.rgb(20, 33, 25));
+        // Android 15 强制内容延伸到系统栏后，给网页留出状态栏和导航栏的安全区域。
+        // 深色外框仍铺到屏幕边缘，状态栏背后不会再露出主题默认的白色。
+        if (android.os.Build.VERSION.SDK_INT >= 35) {
+            frame.setOnApplyWindowInsetsListener((view, insets) -> {
+                android.graphics.Insets safe = insets.getInsets(
+                    android.view.WindowInsets.Type.systemBars() |
+                    android.view.WindowInsets.Type.displayCutout());
+                view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+                return insets;
+            });
+        }
+        frame.addView(content, new android.widget.FrameLayout.LayoutParams(-1, -1));
+        setContentView(frame);
+    }
     private void showSetup() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackgroundColor(android.graphics.Color.WHITE);
         root.setPadding(32, 48, 32, 24);
         TextView hint = new TextView(this);
         hint.setText("连接你自行部署的续页服务器，使用服务器账号手动发送和接收任务。跨公网请使用 HTTPS；当前本机任务不会自动搬迁，可先导出完整 ZIP 再在服务器空间导入。");
@@ -72,7 +90,7 @@ public class MainActivity extends Activity {
         local.setText("返回本机空间");
         local.setOnClickListener(v -> openBundled());
         root.addView(hint); root.addView(input); root.addView(button); root.addView(local);
-        setContentView(root);
+        setContentWithInsets(root);
     }
     private void openBundled() {
         localMode = true;
@@ -95,6 +113,8 @@ public class MainActivity extends Activity {
             web.destroy();
         }
         web = new WebView(this);
+        // 页面加载前也使用深色底，避免状态栏透明时露出一条白边。
+        web.setBackgroundColor(android.graphics.Color.rgb(20, 33, 25));
         web.getSettings().setJavaScriptEnabled(true);
         web.getSettings().setDomStorageEnabled(true);
         web.getSettings().setAllowFileAccess(false);
@@ -130,16 +150,9 @@ public class MainActivity extends Activity {
             }
         });
         web.addJavascriptInterface(new OverviewBridge(this), "XuYeAndroid");
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout toolbar = new LinearLayout(this);
-        Button local = new Button(this); local.setText("本机"); local.setOnClickListener(v -> openBundled());
-        Button remote = new Button(this); remote.setText("连接服务器"); remote.setOnClickListener(v -> showSetup());
-        toolbar.addView(local, new LinearLayout.LayoutParams(0, 48, 1));
-        toolbar.addView(remote, new LinearLayout.LayoutParams(0, 48, 1));
-        root.addView(toolbar);
-        root.addView(web, new LinearLayout.LayoutParams(-1, 0, 1));
-        setContentView(root);
+        // 原来的原生按钮行只有 48 物理像素，高密度屏幕上文字被裁掉，只剩白色长条。
+        // 切换本机和服务器的入口已放进网页的“数据与同步”页，因此 WebView 直接填满内容区。
+        setContentWithInsets(web);
         web.loadUrl(address);
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
@@ -183,7 +196,9 @@ public class MainActivity extends Activity {
         return (uri.getScheme() + "://" + uri.getAuthority()).equalsIgnoreCase(allowedOrigin);
     }
     @Override public void onBackPressed() {
-        if (web != null && web.canGoBack()) web.goBack(); else super.onBackPressed();
+        if (web != null && web.canGoBack()) web.goBack();
+        else if (!localMode) showSetup(); // 服务器无法打开时仍能从系统返回键切回本机空间。
+        else super.onBackPressed();
     }
     private static class OverviewBridge {
         private final MainActivity activity;
@@ -191,8 +206,11 @@ public class MainActivity extends Activity {
         OverviewBridge(MainActivity activity) { this.activity = activity; this.context = activity.getApplicationContext(); }
         @JavascriptInterface public boolean isEmbedded() { return activity.localMode; }
         @JavascriptInterface public void openServerSetup() {
-            // 仅本机内置页面能打开切换入口；实际连接仍需用户填写完整地址。
-            if (activity.localMode) activity.runOnUiThread(activity::showSetup);
+            // 页面只负责打开原生地址输入页，实际连接仍需用户填写完整地址。
+            activity.runOnUiThread(activity::showSetup);
+        }
+        @JavascriptInterface public void openLocalSpace() {
+            activity.runOnUiThread(activity::openBundled);
         }
         @JavascriptInterface public void requestAi(String id, String path, String body) {
             if (!activity.localMode || id.length() > 100 || body.length() > 30 * 1024 * 1024) return;

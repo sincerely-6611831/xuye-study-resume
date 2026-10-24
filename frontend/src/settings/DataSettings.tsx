@@ -17,6 +17,7 @@ type SyncMode = "server" | "zip";
 type AndroidDataBridge = {
   isEmbedded?: () => boolean;
   openServerSetup?: () => void;
+  openLocalSpace?: () => void;
 };
 
 export function DataSettings({
@@ -136,7 +137,7 @@ export function DataSettings({
               className="primary"
               onClick={() => {
                 if (android?.openServerSetup) android.openServerSetup();
-                else notify("请使用应用顶部的“连接服务器”入口。");
+                else notify("当前 Android 容器没有提供服务器连接入口。");
               }}
             >
               连接自建服务器 <ArrowRight size={16} />
@@ -185,10 +186,28 @@ export function DataSettings({
                   )}
                 </div>
               ) : (
-                <p className="muted">
-                  当前服务地址：{window.location.origin}。如需更换服务器，请使用
-                  Android 顶部的“连接服务器”入口。
-                </p>
+                <div className="server-address-box">
+                  <p className="muted">
+                    当前服务地址：{window.location.origin}
+                    。本机空间与服务器空间的数据独立。
+                  </p>
+                  <div className="server-address-actions">
+                    <button
+                      className="secondary"
+                      type="button"
+                      onClick={() => android.openServerSetup?.()}
+                    >
+                      更换服务器
+                    </button>
+                    <button
+                      className="secondary"
+                      type="button"
+                      onClick={() => android.openLocalSpace?.()}
+                    >
+                      返回本机空间
+                    </button>
+                  </div>
+                </div>
               )}
               <ol className="data-method-steps">
                 <li>

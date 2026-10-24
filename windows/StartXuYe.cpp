@@ -34,6 +34,14 @@ static bool ready(unsigned short port) {
     return okay;
 }
 static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+    if (message == WM_DPICHANGED) {
+        // 跨不同缩放比例的显示器时按 Windows 建议的矩形调整窗口，WebView 随 WM_SIZE 更新。
+        const RECT* suggested = reinterpret_cast<const RECT*>(lparam);
+        SetWindowPos(hwnd, nullptr, suggested->left, suggested->top,
+            suggested->right - suggested->left, suggested->bottom - suggested->top,
+            SWP_NOZORDER | SWP_NOACTIVATE);
+        return 0;
+    }
     if (message == WM_SIZE && controller) {
         RECT bounds{};
         GetClientRect(hwnd, &bounds);
@@ -55,6 +63,9 @@ static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wparam, LPARA
     return DefWindowProcW(hwnd, message, wparam, lparam);
 }
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR args, int show) {
+    // 必须在创建任何窗口前声明 DPI 感知，否则 150% 等缩放下整个 WebView 会被系统放大成模糊位图。
+    if (!SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2))
+        SetProcessDPIAware(); // 较早的 Windows 10 至少按主屏 DPI 清晰绘制。
     HANDLE mutex = CreateMutexW(nullptr, TRUE, L"Local\\XuYeDesktopSingleInstance");
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND existing = FindWindowW(kClass, nullptr);
@@ -110,8 +121,11 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR args, int show) {
     klass.hCursor = LoadCursorW(nullptr, IDC_ARROW);
     klass.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
     RegisterClassW(&klass);
+    // 原设计尺寸是 96 DPI 下的像素；按当前系统 DPI 换算，窗口视觉大小保持一致。
+    UINT dpi = GetDpiForSystem();
     mainWindow = CreateWindowExW(0, kClass, L"续页 · 学习断片续接器",
-        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 820,
+        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+        MulDiv(1280, dpi, 96), MulDiv(820, dpi, 96),
         nullptr, nullptr, instance, nullptr);
     ShowWindow(mainWindow, show);
     if (share) MessageBoxW(mainWindow,
